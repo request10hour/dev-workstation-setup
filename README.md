@@ -665,13 +665,6 @@ flowchart TD
 
 ## 9. 운영 명령 검증
 
-실행 로그:
-- [docker-operations.txt](docs/logs/docker-operations.txt)
-
-위에서 만든 이미지와 컨테이너를 기준으로, 운영 단계에서 자주 쓰는 명령을 다시 확인했다.
-
-사용한 운영 명령:
-
 ```bash
 $ docker images
 REPOSITORY        TAG           IMAGE ID       SIZE
@@ -710,6 +703,10 @@ c41532c37591   mission-web   0.00%     4.945MiB / 15.67GiB   0.03%     1.84kB / 
 - `docker ps -a` 로 웹 서버, 바인드 마운트, 볼륨 실습, Ubuntu 실습, OrbStack 추가 실습 컨테이너까지 현재 상태를 한 번에 점검했다.
 - `docker logs mission-web | tail -n 5` 로 NGINX 초기화와 실제 HTTP 요청 로그를 확인해 웹 서버가 정상 응답하고 있음을 검증했다.
 - `docker stats --no-stream mission-web` 로 CPU, 메모리, 네트워크 I/O, 블록 I/O 를 한 번성으로 확인해 실행 중 컨테이너의 리소스 상태를 점검했다.
+
+참고 이미지:
+
+![운영 명령 검증 참고 화면](docs/assets/docker-operations-screen.png)
 
 ## 10. Git / GitHub / VSCode 연동
 
