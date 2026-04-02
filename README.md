@@ -453,6 +453,19 @@ COPY web/ /usr/share/nginx/html/
 EXPOSE 80
 ```
 
+Dockerfile 설명:
+
+1. `FROM nginx:alpine`
+   `nginx:alpine` 이미지를 베이스로 사용한다. 입력은 "가벼운 NGINX 웹 서버 이미지를 기반으로 삼겠다"는 뜻이고, 결과적으로 직접 웹 서버를 처음부터 설치하지 않아도 정적 페이지를 빠르게 띄울 수 있다.
+2. `LABEL org.opencontainers.image.title="my-custom-nginx"`
+   이미지에 식별용 메타데이터를 붙인다. 입력은 이미지 제목 정보이고, 출력은 터미널에 직접 보이지 않더라도 이미지 관리 도구에서 어떤 용도의 이미지인지 구분하는 데 도움이 된다.
+3. `ENV APP_ENV=dev`
+   컨테이너 내부 기본 환경변수를 설정한다. 입력은 `APP_ENV` 값을 `dev` 로 두겠다는 뜻이고, 이 값은 이후 컨테이너 안에서 설정값처럼 읽어 쓸 수 있다.
+4. `COPY web/ /usr/share/nginx/html/`
+   호스트의 `web/` 디렉터리 내용을 NGINX 기본 웹 루트로 복사한다. 입력은 우리가 만든 웹 파일들이고, 출력은 컨테이너가 실행될 때 그 파일을 바로 서비스할 수 있는 상태가 된다.
+5. `EXPOSE 80`
+   컨테이너가 기본적으로 사용하는 웹 포트가 `80` 임을 문서처럼 명시한다. 입력은 포트 번호 선언이고, 실제 외부 접속은 이후 `docker run -p 8088:80 ...` 처럼 포트 매핑했을 때 가능해진다.
+
 명령줄 실행:
 
 ```bash
@@ -489,6 +502,25 @@ $ docker logs mission-web | sed -n '1,8p'
 $ curl -s http://localhost:8088 | grep -o "<h1>Hello Web Server</h1>"
 <h1>Hello Web Server</h1>
 ```
+
+명령줄 설명:
+
+1. `mkdir -p web`
+   웹 소스 폴더를 만드는 입력이다. 출력은 따로 없지만, 이후 `web/index.html` 파일을 안전하게 만들 수 있는 디렉터리가 준비된다.
+2. `echo '<h1>Hello Web Server</h1>' > web/index.html`
+   가장 단순한 HTML 본문을 파일로 저장하는 입력이다. 출력은 따로 없고, 결과로 `web/index.html` 안에 `Hello Web Server` 문구가 들어간다.
+3. `docker build -t workstation-web:1.0 .`
+   현재 디렉터리의 `Dockerfile` 과 build context를 사용해 이미지를 만드는 입력이다. 출력 중 `naming to docker.io/library/workstation-web:1.0` 가 보이면 `workstation-web:1.0` 이름의 이미지가 정상 생성되었다는 뜻이다.
+4. `docker images`
+   로컬 이미지 목록을 확인하는 입력이다. 출력에서 `workstation-web   1.0` 이 보이므로 방금 빌드한 커스텀 이미지가 실제로 저장되었음을 확인할 수 있다.
+5. `docker run -d --name mission-web -p 8088:80 workstation-web:1.0`
+   방금 만든 이미지를 백그라운드 컨테이너로 실행하는 입력이다. 출력으로 긴 컨테이너 ID 가 나오면 생성과 시작이 정상 처리된 것이다. `-p 8088:80` 은 호스트 8088 포트를 컨테이너 80 포트에 연결한다는 의미다.
+6. `docker ps`
+   현재 실행 중인 컨테이너를 확인하는 입력이다. 출력에서 `mission-web` 이 `Up` 상태로 보이고 `0.0.0.0:8088->80/tcp` 가 함께 보이므로, 컨테이너가 실행 중이며 브라우저에서 `localhost:8088` 로 접근할 수 있음을 뜻한다.
+7. `docker logs mission-web | sed -n '1,8p'`
+   컨테이너 시작 로그 일부를 확인하는 입력이다. 출력에 `/docker-entrypoint.sh` 와 NGINX 초기화 관련 문장이 보이므로, NGINX가 정상적으로 기동 과정을 수행했음을 확인할 수 있다.
+8. `curl -s http://localhost:8088 | grep -o "<h1>Hello Web Server</h1>"`
+   브라우저 대신 터미널에서 HTTP 응답을 검증하는 입력이다. 출력으로 `<h1>Hello Web Server</h1>` 가 그대로 보였기 때문에, 포트 매핑된 웹 서버가 우리가 만든 페이지를 정상 응답하고 있다는 뜻이다.
 
 브라우저 접속 증거:
 
