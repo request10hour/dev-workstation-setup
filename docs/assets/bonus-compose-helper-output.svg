@@ -1,12 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420">
-  <rect width="1200" height="420" fill="#0d1117"/>
-  <rect x="36" y="32" width="1128" height="356" rx="20" fill="#161b22" stroke="#30363d" stroke-width="2"/>
-  <circle cx="78" cy="68" r="8" fill="#ff5f56"/>
-  <circle cx="106" cy="68" r="8" fill="#ffbd2e"/>
-  <circle cx="134" cy="68" r="8" fill="#27c93f"/>
-  <text x="176" y="76" fill="#8b949e" font-family="Menlo, Monaco, monospace" font-size="26">helper -&gt; web output</text>
-  <text x="72" y="150" fill="#58a6ff" font-family="Menlo, Monaco, monospace" font-size="28">$ docker compose exec -T helper sh -lc 'wget -qO- http://web &amp;&amp; echo helper-to-web-success'</text>
-  <text x="72" y="232" fill="#e6edf3" font-family="Menlo, Monaco, monospace" font-size="42">&lt;h1&gt;Compose Bonus&lt;/h1&gt;</text>
-  <text x="72" y="300" fill="#3fb950" font-family="Menlo, Monaco, monospace" font-size="42">helper-to-web-success</text>
-  <text x="72" y="352" fill="#8b949e" font-family="Menlo, Monaco, monospace" font-size="24">서비스 이름 web 으로 접근해 실제 HTML 응답을 받은 결과</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="840" viewBox="0 0 1400 840">
+  <rect width="1400" height="840" fill="#dfe9f5"/>
+  <rect x="68" y="72" width="1264" height="686" rx="28" fill="#f8fbff" stroke="#cfdceb" stroke-width="2"/>
+  <rect x="68" y="72" width="1264" height="82" rx="28" fill="#eef4fb"/>
+  <rect x="68" y="126" width="1264" height="28" fill="#eef4fb"/>
+
+  <circle cx="110" cy="113" r="8" fill="#ff5f57"/>
+  <circle cx="134" cy="113" r="8" fill="#febc2e"/>
+  <circle cx="158" cy="113" r="8" fill="#28c840"/>
+
+  <rect x="192" y="90" width="1100" height="40" rx="20" fill="#ffffff" stroke="#c7d5e6" stroke-width="2"/>
+  <text x="218" y="117" fill="#34425c" font-family="SF Pro Display, Helvetica, Arial, sans-serif" font-size="26">http://web</text>
+
+  <rect x="68" y="154" width="1264" height="604" fill="#ffffff"/>
+
+  <text x="700" y="430" text-anchor="middle" fill="#16213d" font-family="SF Pro Display, Helvetica, Arial, sans-serif" font-size="68" font-weight="700">Compose Bonus</text>
+  <text x="700" y="505" text-anchor="middle" fill="#2f7d32" font-family="SF Pro Display, Helvetica, Arial, sans-serif" font-size="34" font-weight="600">helper-to-web-success</text>
 </svg>
