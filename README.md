@@ -68,43 +68,100 @@ git version 2.53.0
 
 ## 2. 터미널 기본 조작
 
-전체 로그:
-- [terminal-basics.txt](docs/logs/terminal-basics.txt)
-
-실행 요약:
-
 ```bash
+$ cd /Users/10hour0574/dev-workstation-setup/practice
+
 $ pwd
-/Users/10hour0574/dev-workstation-setup
+/Users/10hour0574/dev-workstation-setup/practice
 
 $ ls -la
-drwxr-xr-x   9 c10hour0574  c10hour0574  288 Apr  2 19:35 .
-drwxr-x---+ 21 c10hour0574  c10hour0574  672 Apr  2 19:37 ..
-...
+total 0
+drwxr-xr-x   4 c10hour0574  c10hour0574  128 Apr  3 03:01 .
+drwxr-xr-x  11 c10hour0574  c10hour0574  352 Apr  3 02:31 ..
+drwxr-xr-x   4 c10hour0574  c10hour0574  128 Apr  2 19:39 permissions
+drwxr-xr-x   4 c10hour0574  c10hour0574  128 Apr  2 19:39 terminal
 
-$ cd practice/terminal
-$ printf "mission-log\n" > note.txt
+$ mkdir cli-lab
+
+$ cd cli-lab
+
+$ pwd
+/Users/10hour0574/dev-workstation-setup/practice/cli-lab
+
+$ ls -la
+total 0
+drwxr-xr-x  2 c10hour0574  c10hour0574   64 Apr  3 03:16 .
+drwxr-xr-x  5 c10hour0574  c10hour0574  160 Apr  3 03:16 ..
+
 $ touch empty.txt
-$ cat note.txt
-mission-log
 
-$ cp note.txt note-copy.txt
-$ mv note-copy.txt renamed-note.txt
-$ mkdir archive
-$ mv renamed-note.txt archive/renamed-note.txt
+$ echo "hello terminal" > memo.txt
 
-$ ls -la archive
--rw-r--r--  1 c10hour0574  c10hour0574   12 Apr  2 19:39 renamed-note.txt
+$ cat memo.txt
+hello terminal
+
+$ cp memo.txt copy.txt
+
+$ mv copy.txt renamed.txt
+
+$ mkdir dir1
+
+$ mv renamed.txt dir1/
+
+$ cp -r dir1 dir1_backup
+
+$ ls -la
+total 8
+drwxr-xr-x  6 c10hour0574  c10hour0574  192 Apr  3 03:16 .
+drwxr-xr-x  5 c10hour0574  c10hour0574  160 Apr  3 03:16 ..
+drwxr-xr-x  3 c10hour0574  c10hour0574   96 Apr  3 03:16 dir1
+drwxr-xr-x  3 c10hour0574  c10hour0574   96 Apr  3 03:16 dir1_backup
+-rw-r--r--  1 c10hour0574  c10hour0574    0 Apr  3 03:16 empty.txt
+-rw-r--r--  1 c10hour0574  c10hour0574   15 Apr  3 03:16 memo.txt
 
 $ rm empty.txt
-$ rm -rf workspace-a
+
+$ rm -rf dir1_backup
+
+$ ls -la
+total 8
+drwxr-xr-x  4 c10hour0574  c10hour0574  128 Apr  3 03:16 .
+drwxr-xr-x  5 c10hour0574  c10hour0574  160 Apr  3 03:16 ..
+drwxr-xr-x  3 c10hour0574  c10hour0574   96 Apr  3 03:16 dir1
+-rw-r--r--  1 c10hour0574  c10hour0574   15 Apr  3 03:16 memo.txt
 ```
 
-절대 경로와 상대 경로:
+명령어 설명:
 
-- 절대 경로는 루트(`/`)부터 전체 위치를 적는 방식이다. 예: `/Users/10hour0574/dev-workstation-setup/app/index.html`
-- 상대 경로는 현재 위치를 기준으로 적는 방식이다. 저장소 루트에서 같은 파일은 `app/index.html` 이다.
-- 과제 재현 문서에서는 평가자가 어느 위치에서 시작하는지 알 수 없기 때문에, 중요한 안내는 절대 경로와 상대 경로를 함께 적는 것이 안전하다.
+1. `cd /Users/10hour0574/dev-workstation-setup/practice`
+실습 시작 위치를 `practice` 디렉터리로 맞추는 명령이다. 이렇게 하면 서비스 파일과 실습 파일이 섞이지 않고, 과제용 조작 흔적을 별도 공간에 남길 수 있다.
+
+2. `pwd`, `ls -la`
+`pwd` 는 현재 위치를 절대 경로로 확인하는 명령이고, `ls -la` 는 숨김 파일까지 포함한 현재 디렉터리 목록을 보여 주는 명령이다. 실습 전후에 이 두 명령을 같이 쓰면 "지금 어디서 무엇을 보고 있는지" 를 명확히 기록할 수 있다.
+
+3. `mkdir cli-lab`, `cd cli-lab`
+새 실습 폴더를 만들고 그 안으로 들어가는 과정이다. 이번 실습용 작업 디렉터리는 `/Users/10hour0574/dev-workstation-setup/practice/cli-lab` 이다.
+
+4. `touch empty.txt`, `echo "hello terminal" > memo.txt`, `cat memo.txt`
+`touch` 는 빈 파일을 만들고, `echo ... > 파일명` 은 문자열을 파일에 저장한다. `cat memo.txt` 결과로 `hello terminal` 이 출력되었기 때문에 파일이 정상 생성되고 내용도 올바르게 들어갔음을 확인할 수 있다.
+
+5. `cp`, `mv`
+`cp memo.txt copy.txt` 는 파일 복사, `mv copy.txt renamed.txt` 는 파일 이름 변경이다. 이후 `mv renamed.txt dir1/` 는 파일 이동까지 수행한다. 즉 `mv` 는 이름 변경과 이동을 모두 담당하는 명령이다.
+
+6. `mkdir dir1`, `cp -r dir1 dir1_backup`
+`mkdir dir1` 은 디렉터리 생성이고, `cp -r` 는 디렉터리를 하위 파일까지 포함해 재귀적으로 복사하는 명령이다. 그래서 `dir1` 과 `dir1_backup` 이 동시에 생성된다.
+
+7. `rm empty.txt`, `rm -rf dir1_backup`
+`rm` 은 파일 삭제, `rm -rf` 는 디렉터리와 그 하위 내용을 강제로 함께 삭제할 때 사용한다. 마지막 `ls -la` 결과에서 `empty.txt` 와 `dir1_backup` 이 사라지고 `memo.txt`, `dir1/renamed.txt` 만 남아 있는 것을 확인할 수 있다.
+
+절대 경로와 상대 경로 설명:
+
+- 절대 경로는 루트(`/`)부터 전체 위치를 적는 방식이다. 이번 실습 디렉터리의 절대 경로 예시는 `/Users/10hour0574/dev-workstation-setup/practice/cli-lab` 이다.
+- 상대 경로는 현재 위치를 기준으로 적는 방식이다. `cli-lab` 안에서 저장소의 웹 페이지 파일을 가리키는 상대 경로 예시는 `../../app/index.html` 이다.
+- 문서에 절대 경로와 상대 경로를 함께 적어 두면, 평가자가 현재 위치를 다르게 잡더라도 작업 과정을 더 쉽게 재현할 수 있다.
+
+전체 로그:
+- [terminal-basics.txt](docs/logs/terminal-basics.txt)
 
 ## 3. 권한 실습
 
