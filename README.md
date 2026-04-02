@@ -304,6 +304,10 @@ Docker CLI 가 설치되어 있는지와 버전이 무엇인지 확인하는 명
 3. `docker images`
 현재 로컬에 저장된 이미지 목록을 확인하는 명령이다. 여기서 `hello-world`, `ubuntu:24.04`, `nginx:1.29-alpine`, `workstation-web` 이미지가 준비되어 있음을 확인할 수 있다.
 
+참고 이미지:
+
+![docker images 실행 화면](docs/assets/docker-images.png)
+
 4. `docker ps`
 현재 실행 중인 컨테이너 목록을 확인하는 명령이다. 출력이 비어 있으므로 조회 시점에는 실행 중인 컨테이너가 없었다.
 
