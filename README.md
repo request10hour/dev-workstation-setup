@@ -42,23 +42,14 @@ git version 2.53.0
 
 명령어 설명:
 
-1. `pwd`
-`pwd` 는 현재 작업 중인 디렉터리의 절대 경로를 출력하는 명령이다. 여기서 나온 `/Users/10hour0574/dev-workstation-setup` 는 내가 이 과제를 수행한 저장소 루트 위치를 의미한다.
-
-2. `uname -a`
-`uname -a` 는 현재 시스템의 커널과 아키텍처 정보를 한 줄로 보여 주는 명령이다. 출력 결과의 `Darwin` 은 macOS 계열 커널임을 뜻하고, 마지막의 `x86_64` 는 이 환경이 64비트 Intel 아키텍처 기준으로 동작하고 있음을 의미한다.
-
-3. `echo $SHELL`
-`echo $SHELL` 은 현재 사용자가 기본으로 사용하는 셸 프로그램 경로를 확인하는 명령이다. 출력값 `/bin/zsh` 는 이 과제에서 사용한 기본 셸이 `zsh` 라는 뜻이다.
-
-4. `docker --version`
-`docker --version` 은 Docker CLI 가 설치되어 있는지와 버전이 무엇인지 확인하는 명령이다. 출력값 `Docker version 28.5.2, build ecc6942` 는 Docker 명령어가 정상 설치되어 있고, 현재 사용한 버전이 `28.5.2` 임을 의미한다.
-
-5. `docker info`
-`docker info` 는 Docker CLI 자체가 아니라 실제 Docker 엔진이 동작 중인지, 어떤 컨텍스트와 스토리지 드라이버를 사용하는지까지 보여 주는 점검 명령이다. 이번 출력에서 `Context: orbstack` 은 OrbStack 환경에 연결되어 있음을 뜻하고, `Server Version: 28.5.2` 는 Docker 데몬이 실제로 동작 중임을 의미한다. 또한 `Containers: 1`, `Images: 12` 는 조회 시점 기준으로 엔진 안에 컨테이너와 이미지가 각각 몇 개 있었는지를 보여 준다.
-
-6. `git --version`
-`git --version` 은 Git 이 설치되어 있는지와 버전을 확인하는 명령이다. 출력값 `git version 2.53.0` 은 이 과제에서 사용한 Git 버전이 `2.53.0` 임을 의미한다.
+| 명령어 | 설명 | 확인/의미 |
+| --- | --- | --- |
+| `pwd` | 현재 작업 중인 디렉터리의 절대 경로를 출력하는 명령 | `/Users/10hour0574/dev-workstation-setup` 는 과제를 수행한 저장소 루트 위치를 의미 |
+| `uname -a` | 현재 시스템의 커널과 아키텍처 정보를 한 줄로 보여주는 명령 | `Darwin` 은 macOS 계열 커널, `x86_64` 는 64비트 Intel 아키텍처 환경을 의미 |
+| `echo $SHELL` | 현재 사용자가 기본으로 사용하는 셸 프로그램 경로를 확인하는 명령 | `/bin/zsh` 이므로 기본 셸은 `zsh` |
+| `docker --version` | Docker CLI 설치 여부와 버전을 확인하는 명령 | `Docker version 28.5.2` 이므로 Docker 명령어가 정상 설치되어 있고 버전은 `28.5.2` |
+| `docker info` | 실제 Docker 엔진이 동작 중인지, 컨텍스트와 스토리지 드라이버 등을 확인하는 점검 명령 | `Context: orbstack` 은 OrbStack 환경 연결, `Server Version: 28.5.2` 는 Docker 데몬이 실제 동작 중임을 의미 |
+| `git --version` | Git 설치 여부와 버전을 확인하는 명령 | `git version 2.53.0` 이므로 Git 버전은 `2.53.0` |
 
 재현성 주의사항:
 
