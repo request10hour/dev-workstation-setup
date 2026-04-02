@@ -922,7 +922,7 @@ $ docker compose down
 
 한 줄 요약: Docker Compose를 사용하면 웹 서비스 실행 설정을 파일로 관리하면서, `up / ps / logs / down` 운영 흐름과 서비스 간 통신, 환경변수 변경까지 같은 방식으로 반복 검증할 수 있다.
 
-## 13. GitHub SSH 키 설정 방법 안내
+## 13. GitHub SSH 키 생성 및 SSH 원격 전환
 
 이 항목은 실제 로그보다 설정 순서를 간단히 안내하는 용도로 정리한다.
 
