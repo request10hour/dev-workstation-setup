@@ -1,0 +1,13 @@
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "${WEB_PORT}:80"
+    volumes:
+      - ./site:/usr/share/nginx/html:ro
+    environment:
+      APP_MODE: ${APP_MODE}
+
+  helper:
+    image: busybox:1.36
+    command: sh -c "while true; do echo helper-alive; sleep 30; done"

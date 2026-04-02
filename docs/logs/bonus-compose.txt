@@ -1,102 +1,209 @@
-$ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env config
-name: workstation-bonus
-services:
-  probe:
-    command:
-      - sh
-      - -c
-      - |2
+$ docker compose config --environment | grep -E '^(WEB_PORT|APP_MODE)='
+APP_MODE=dev
+WEB_PORT=8082
 
-          until wget -qO- http://web:80 > /tmp/index.html; do
-            echo 'probe: waiting for web';
-            sleep 1;
-          done;
-          echo "probe: APP_MODE=$$APP_MODE";
-          echo 'probe: web reachable over compose network';
-          grep -o '<title>.*</title>' /tmp/index.html;
-          sleep 3600
-    depends_on:
-      web:
-        condition: service_started
-        required: true
-    environment:
-      APP_MODE: compose-bonus
-    image: busybox:1.36
-    networks:
-      bonus-net: null
-  web:
-    build:
-      context: /Users/10hour0574/dev-workstation-setup
-      dockerfile: Dockerfile
-    environment:
-      APP_MODE: compose-bonus
-    image: workstation-web:compose
-    networks:
-      bonus-net: null
-    ports:
-      - mode: ingress
-        target: 80
-        published: "8093"
-        protocol: tcp
-    volumes:
-      - type: bind
-        source: /Users/10hour0574/dev-workstation-setup/bonus/compose/site
-        target: /usr/share/nginx/html
-        read_only: true
-        bind:
-          create_host_path: true
-networks:
-  bonus-net:
-    name: workstation-bonus_bonus-net
-    driver: bridge
+$ docker compose up -d web
+ Network compose_default  Creating
+ Network compose_default  Created
+ Container compose-web-1  Creating
+ Container compose-web-1  Created
+ Container compose-web-1  Starting
+ Container compose-web-1  Started
 
-$ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env up -d --build
-#1 [internal] load local bake definitions
-#1 reading from stdin 541B done
-#1 DONE 0.0s
+$ docker compose ps
+NAME            IMAGE          COMMAND                  SERVICE   CREATED        STATUS                  PORTS
+compose-web-1   nginx:alpine   "/docker-entrypoint.…"   web       1 second ago   Up Less than a second   0.0.0.0:8082->80/tcp, [::]:8082->80/tcp
 
-#2 [internal] load build definition from Dockerfile
-#2 transferring dockerfile: 277B done
-#2 DONE 0.1s
+$ docker compose logs web
+web-1  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+web-1  | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+web-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+web-1  | 10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+web-1  | 10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+web-1  | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+web-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+web-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+web-1  | /docker-entrypoint.sh: Configuration complete; ready for start up
+web-1  | 2026/04/02 21:00:55 [notice] 1#1: using the "epoll" event method
+web-1  | 2026/04/02 21:00:55 [notice] 1#1: nginx/1.29.7
+web-1  | 2026/04/02 21:00:55 [notice] 1#1: built by gcc 15.2.0 (Alpine 15.2.0) 
+web-1  | 2026/04/02 21:00:55 [notice] 1#1: OS: Linux 6.17.8-orbstack-00308-g8f9c941121b1
+web-1  | 2026/04/02 21:00:55 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 20480:1048576
+web-1  | 2026/04/02 21:00:55 [notice] 1#1: start worker processes
+web-1  | 2026/04/02 21:00:55 [notice] 1#1: start worker process 30
+web-1  | 2026/04/02 21:00:55 [notice] 1#1: start worker process 31
+web-1  | 2026/04/02 21:00:55 [notice] 1#1: start worker process 32
+web-1  | 2026/04/02 21:00:55 [notice] 1#1: start worker process 33
+web-1  | 2026/04/02 21:00:55 [notice] 1#1: start worker process 34
+web-1  | 2026/04/02 21:00:55 [notice] 1#1: start worker process 35
 
-#3 [internal] load metadata for docker.io/library/nginx:1.29-alpine
-#3 DONE 0.0s
+$ curl -s http://localhost:8082
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Compose Bonus</title>
+</head>
+<body>
+  <h1>Compose Bonus</h1>
+  <p>simple html page</p>
+</body>
+</html>
 
-#4 [internal] load .dockerignore
-#4 transferring context: 75B done
-#4 DONE 0.1s
+$ docker compose down
+ Container compose-web-1  Stopping
+ Container compose-web-1  Stopped
+ Container compose-web-1  Removing
+ Container compose-web-1  Removed
+ Network compose_default  Removing
+ Network compose_default  Removed
 
-#5 [1/2] FROM docker.io/library/nginx:1.29-alpine
-#5 DONE 0.0s
+$ docker compose up -d
+ Network compose_default  Creating
+ Network compose_default  Created
+ Container compose-web-1  Creating
+ Container compose-helper-1  Creating
+ Container compose-web-1  Created
+ Container compose-helper-1  Created
+ Container compose-web-1  Starting
+ Container compose-helper-1  Starting
+ Container compose-web-1  Started
+ Container compose-helper-1  Started
 
-#6 [internal] load build context
-#6 transferring context: 59B done
-#6 DONE 0.0s
+$ docker compose ps
+NAME               IMAGE          COMMAND                  SERVICE   CREATED        STATUS                  PORTS
+compose-helper-1   busybox:1.36   "sh -c 'while true; …"   helper    1 second ago   Up Less than a second   
+compose-web-1      nginx:alpine   "/docker-entrypoint.…"   web       1 second ago   Up Less than a second   0.0.0.0:8082->80/tcp, [::]:8082->80/tcp
 
-#7 [2/2] COPY app/ /usr/share/nginx/html/
-#7 CACHED
+$ docker compose exec -T helper wget -qO- http://web
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Compose Bonus</title>
+</head>
+<body>
+  <h1>Compose Bonus</h1>
+  <p>simple html page</p>
+</body>
+</html>
 
-#8 exporting to image
-#8 exporting layers done
-#8 writing image sha256:0a44ae70aadc1364cf6f848c53b5dc9678008c77a80e7ba8b2790302bd4e12e3 0.0s done
-#8 naming to docker.io/library/workstation-web:compose
-#8 naming to docker.io/library/workstation-web:compose 0.0s done
-#8 DONE 0.1s
+$ docker compose exec -T web printenv APP_MODE
+dev
 
-#9 resolving provenance for metadata file
-#9 DONE 0.0s
+$ docker compose logs web helper
+web-1  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+web-1  | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+web-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+web-1  | 10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+web-1  | 10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+web-1  | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+web-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+web-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+web-1  | /docker-entrypoint.sh: Configuration complete; ready for start up
+web-1  | 2026/04/02 21:00:56 [notice] 1#1: using the "epoll" event method
+web-1  | 2026/04/02 21:00:56 [notice] 1#1: nginx/1.29.7
+web-1  | 2026/04/02 21:00:56 [notice] 1#1: built by gcc 15.2.0 (Alpine 15.2.0) 
+web-1  | 2026/04/02 21:00:56 [notice] 1#1: OS: Linux 6.17.8-orbstack-00308-g8f9c941121b1
+web-1  | 2026/04/02 21:00:56 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 20480:1048576
+web-1  | 2026/04/02 21:00:56 [notice] 1#1: start worker processes
+web-1  | 2026/04/02 21:00:56 [notice] 1#1: start worker process 30
+web-1  | 2026/04/02 21:00:56 [notice] 1#1: start worker process 31
+web-1  | 2026/04/02 21:00:56 [notice] 1#1: start worker process 32
+web-1  | 2026/04/02 21:00:56 [notice] 1#1: start worker process 33
+web-1  | 2026/04/02 21:00:56 [notice] 1#1: start worker process 34
+web-1  | 2026/04/02 21:00:56 [notice] 1#1: start worker process 35
+web-1  | 192.168.107.3 - - [02/Apr/2026:21:00:57 +0000] "GET / HTTP/1.1" 200 178 "-" "Wget" "-"
+helper-1  | helper-alive
 
-$ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env ps
-NAME                        IMAGE                     COMMAND                   SERVICE   CREATED        STATUS                  PORTS
-workstation-bonus-probe-1   busybox:1.36              "sh -c '\n  until wge…"   probe     1 second ago   Up Less than a second   
-workstation-bonus-web-1     workstation-web:compose   "/docker-entrypoint.…"    web       1 second ago   Up Less than a second   0.0.0.0:8093->80/tcp, [::]:8093->80/tcp
+$ docker compose down
+ Container compose-web-1  Stopping
+ Container compose-helper-1  Stopping
+ Container compose-web-1  Stopped
+ Container compose-web-1  Removing
+ Container compose-web-1  Removed
+ Container compose-helper-1  Stopped
+ Container compose-helper-1  Removing
+ Container compose-helper-1  Removed
+ Network compose_default  Removing
+ Network compose_default  Removed
 
-$ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env logs probe
-probe-1  | probe: APP_MODE=compose-bonus
-probe-1  | probe: web reachable over compose network
-probe-1  | <title>AI/SW 개발 워크스테이션 구축</title>
+$ cat > .env <<'EOF'
+WEB_PORT=8083
+APP_MODE=prod
+EOF
 
-$ curl -s http://localhost:8093 | grep -o "<title>AI/SW 개발 워크스테이션 구축</title>"
-<title>AI/SW 개발 워크스테이션 구축</title>
+$ docker compose config --environment | grep -E '^(WEB_PORT|APP_MODE)='
+APP_MODE=prod
+WEB_PORT=8083
 
-$ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env down
+$ docker compose up -d
+ Network compose_default  Creating
+ Network compose_default  Created
+ Container compose-helper-1  Creating
+ Container compose-web-1  Creating
+ Container compose-helper-1  Created
+ Container compose-web-1  Created
+ Container compose-helper-1  Starting
+ Container compose-web-1  Starting
+ Container compose-helper-1  Started
+ Container compose-web-1  Started
+
+$ docker compose ps
+NAME               IMAGE          COMMAND                  SERVICE   CREATED        STATUS                  PORTS
+compose-helper-1   busybox:1.36   "sh -c 'while true; …"   helper    1 second ago   Up Less than a second   
+compose-web-1      nginx:alpine   "/docker-entrypoint.…"   web       1 second ago   Up Less than a second   0.0.0.0:8083->80/tcp, [::]:8083->80/tcp
+
+$ curl -s http://localhost:8083
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Compose Bonus</title>
+</head>
+<body>
+  <h1>Compose Bonus</h1>
+  <p>simple html page</p>
+</body>
+</html>
+
+$ docker compose exec -T web printenv APP_MODE
+prod
+
+$ docker compose logs web helper
+helper-1  | helper-alive
+web-1     | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+web-1     | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+web-1     | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+web-1     | 10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+web-1     | 10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+web-1     | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+web-1     | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+web-1     | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+web-1     | /docker-entrypoint.sh: Configuration complete; ready for start up
+web-1     | 2026/04/02 21:01:09 [notice] 1#1: using the "epoll" event method
+web-1     | 2026/04/02 21:01:09 [notice] 1#1: nginx/1.29.7
+web-1     | 2026/04/02 21:01:09 [notice] 1#1: built by gcc 15.2.0 (Alpine 15.2.0) 
+web-1     | 2026/04/02 21:01:09 [notice] 1#1: OS: Linux 6.17.8-orbstack-00308-g8f9c941121b1
+web-1     | 2026/04/02 21:01:09 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 20480:1048576
+web-1     | 2026/04/02 21:01:09 [notice] 1#1: start worker processes
+web-1     | 2026/04/02 21:01:09 [notice] 1#1: start worker process 30
+web-1     | 2026/04/02 21:01:09 [notice] 1#1: start worker process 31
+web-1     | 2026/04/02 21:01:09 [notice] 1#1: start worker process 32
+web-1     | 2026/04/02 21:01:09 [notice] 1#1: start worker process 33
+web-1     | 2026/04/02 21:01:09 [notice] 1#1: start worker process 34
+web-1     | 2026/04/02 21:01:09 [notice] 1#1: start worker process 35
+web-1     | 192.168.107.1 - - [02/Apr/2026:21:01:09 +0000] "GET / HTTP/1.1" 200 178 "-" "curl/8.7.1" "-"
+
+$ docker compose down
+ Container compose-helper-1  Stopping
+ Container compose-web-1  Stopping
+ Container compose-web-1  Stopped
+ Container compose-web-1  Removing
+ Container compose-web-1  Removed
+ Container compose-helper-1  Stopped
+ Container compose-helper-1  Removing
+ Container compose-helper-1  Removed
+ Network compose_default  Removing
+ Network compose_default  Removed
+
