@@ -766,44 +766,28 @@ Github 연동 증거:
 - 배운 점:
   원격 저장소 주소가 연결되어 있다고 해서 인증까지 끝난 것은 아니다. 특히 HTTPS 방식은 GitHub 로그인 또는 토큰 저장이 완료되어야 push 가 가능하다. 이후 같은 문제가 반복되면 SSH 키를 등록해 `git@github.com:...` 형식으로 바꾸는 것도 좋은 대안이다.
 
-## 12. 보너스 1. Docker Compose로 간단한 웹 서비스 구성 및 운영
+## 12. 보너스 1. Docker Compose 기본 사용
 
 관련 파일:
 
-- [docker-compose.yml](/Users/10hour0574/dev-workstation-setup/bonus/compose/docker-compose.yml)
-- [.env](/Users/10hour0574/dev-workstation-setup/bonus/compose/.env)
-- [index.html](/Users/10hour0574/dev-workstation-setup/bonus/compose/site/index.html)
-- [bonus-compose.txt](/Users/10hour0574/dev-workstation-setup/docs/logs/bonus-compose.txt)
+- [docker-compose.yml](./bonus/compose/docker-compose.yml)
+- [.env](./bonus/compose/.env)
+- [site/index.html](./bonus/compose/site/index.html)
+- [bonus-compose.txt](./docs/logs/bonus-compose.txt)
+
+핵심 메시지:
+
+- Compose 파일은 실행 설정을 문서화한다.
+- `up / down / ps / logs` 로 기본 운영 루틴을 만든다.
+- 서비스 이름 `web` 으로 컨테이너 간 통신이 된다.
+- `.env` 로 포트와 모드를 바꿔 설정과 코드를 분리할 수 있다.
 
 ### 12-1. 파일 준비
 
-```bash
-$ cd /Users/10hour0574/dev-workstation-setup/bonus/compose
+`site/index.html`
 
-$ mkdir -p site
-
-$ echo '<h1>Compose Bonus</h1>' > site/index.html
-
-$ cat > .env <<'EOF'
-WEB_PORT=8082
-APP_MODE=dev
-EOF
-
-$ cat > docker-compose.yml <<'EOF'
-services:
-  web:
-    image: nginx:alpine
-    ports:
-      - "${WEB_PORT}:80"
-    volumes:
-      - ./site:/usr/share/nginx/html:ro
-    environment:
-      APP_MODE: ${APP_MODE}
-
-  helper:
-    image: busybox:1.36
-    command: sh -c "while true; do echo helper-alive; sleep 30; done"
-EOF
+```html
+<h1>Compose Bonus</h1>
 ```
 
 `.env`
@@ -831,55 +815,50 @@ services:
     command: sh -c "while true; do echo helper-alive; sleep 30; done"
 ```
 
-정리:
-
-- `site/index.html` 은 바인드 마운트 예시처럼 `<h1>Compose Bonus</h1>` 한 줄만 가진 아주 단순한 웹 페이지로 만들었다.
-- `web` 서비스는 `nginx:alpine` 으로 이 정적 HTML 을 제공한다.
-- `helper` 서비스는 BusyBox 기반 보조 컨테이너로, Compose 기본 네트워크에서 `web` 이라는 서비스 이름으로 웹 서버에 접근하는 실험에 사용했다.
-- `.env` 파일의 `WEB_PORT`, `APP_MODE` 값은 Compose 보간에 사용된다. 즉 `${WEB_PORT}` 는 `ports` 항목에서 호스트 포트를 결정하는 값으로 치환되어 `8082:80`, `8083:80` 같은 매핑을 만들고, `${APP_MODE}` 는 `environment` 항목을 통해 컨테이너 내부 환경변수 `APP_MODE` 값으로 전달된다. 그래서 `.env` 파일을 바꾸고 `docker compose up -d` 를 다시 실행하면, 브라우저로 접속하는 포트와 `printenv APP_MODE` 로 확인하는 실행 모드가 함께 바뀌는 것을 검증할 수 있다.
-
 ### 12-2. 단일 서비스 실행
 
 ```bash
 $ cd /Users/10hour0574/dev-workstation-setup/bonus/compose
 
-$ docker compose config --environment | grep -E '^(WEB_PORT|APP_MODE)='
-APP_MODE=dev
-WEB_PORT=8082
-
 $ docker compose up -d web
+ Network compose_default  Created
+ Container compose-web-1  Created
+ Container compose-web-1  Started
 
 $ docker compose ps
-NAME            IMAGE          COMMAND                  SERVICE   STATUS   PORTS
-compose-web-1   nginx:alpine   "/docker-entrypoint.…"   web       Up       0.0.0.0:8082->80/tcp
+NAME            IMAGE          COMMAND                  SERVICE   CREATED                  STATUS                  PORTS
+compose-web-1   nginx:alpine   "/docker-entrypoint.…"   web       Less than a second ago   Up Less than a second   0.0.0.0:8082->80/tcp, [::]:8082->80/tcp
 
 $ docker compose logs web
+web-1  | /docker-entrypoint.sh: Configuration complete; ready for start up
+web-1  | 2026/04/02 21:18:54 [notice] 1#1: nginx/1.29.7
+web-1  | 2026/04/02 21:18:54 [notice] 1#1: start worker process 35
 
 $ curl -s http://localhost:8082
 <h1>Compose Bonus</h1>
 
 $ docker compose down
+ Container compose-web-1  Removed
+ Network compose_default  Removed
 ```
 
-명령줄 설명:
+명령 목적:
 
-- `docker compose config --environment` 는 `.env` 값이 Compose 설정에 어떻게 들어가는지 확인하는 명령이다. 여기서는 `WEB_PORT=8082`, `APP_MODE=dev` 가 반영됨을 먼저 점검했다.
-- `docker compose up -d web` 는 전체 서비스가 아니라 `web` 하나만 선택해 백그라운드로 실행한다.
-- `docker compose ps` 는 현재 Compose가 생성한 컨테이너 상태와 포트 매핑을 확인하는 명령이다. `8082->80` 출력으로 호스트 8082 포트가 컨테이너 80 포트에 연결되었음을 확인했다.
-- `docker compose logs web` 는 NGINX 초기화 로그를 확인하는 명령이다. 웹 서비스가 정상적으로 시작되었는지 점검하는 데 사용했다.
-- `curl -s http://localhost:8082` 는 실제 호스트 포트 접속 검증이다. 응답으로 `<h1>Compose Bonus</h1>` 가 그대로 출력되어 단일 서비스 실행이 성공했음을 확인했다.
-- `docker compose down` 은 Compose가 만든 컨테이너와 네트워크를 정리한다.
+- `up`: 실행
+- `ps`: 상태/포트 확인
+- `logs`: 서비스 로그 확인
+- `curl`: 웹 응답 확인
+- `down`: 정리
 
-증거 이미지:
+![Compose 8082 브라우저 접속 증거](./docs/assets/bonus-compose-browser-8082.png)
 
-![Compose 8082 브라우저 접속 증거](docs/assets/bonus-compose-browser-8082.png)
-
-![Compose 단일 서비스 운영 증거](docs/assets/bonus-compose-single-service.png)
-
-### 12-3. 멀티 컨테이너 실행 및 서비스 디스커버리
+### 12-3. 멀티 컨테이너 실행
 
 ```bash
 $ docker compose up -d
+ Network compose_default  Created
+ Container compose-web-1  Started
+ Container compose-helper-1  Started
 
 $ docker compose exec -T helper sh -lc 'wget -qO- http://web && echo helper-to-web-success'
 <h1>Compose Bonus</h1>
@@ -888,27 +867,22 @@ helper-to-web-success
 $ docker compose exec -T web printenv APP_MODE
 dev
 
-$ docker compose logs web helper
-
 $ docker compose down
+ Container compose-helper-1  Removed
+ Container compose-web-1  Removed
+ Network compose_default  Removed
 ```
 
-명령줄 설명:
+명령 목적:
 
-- `docker compose up -d` 는 `web`, `helper` 두 서비스를 한 번에 실행한다.
-- `docker compose exec -T helper sh -lc 'wget -qO- http://web && echo helper-to-web-success'` 는 `helper` 컨테이너 내부에서 `web` 서비스 이름으로 HTTP 요청을 보내고, 요청이 끝나면 성공 문구를 추가로 출력하는 실험이다. 현재 CLI 환경은 TTY 가 없어서 `exec -T` 옵션으로 비대화형 실행을 사용했다.
-- 이 명령의 결과로 `<h1>Compose Bonus</h1>` 와 `helper-to-web-success` 가 함께 출력되었으므로, `helper` 가 Compose 기본 네트워크를 통해 `web` 에 실제로 접근했음을 확인했다.
-- `docker compose exec -T web printenv APP_MODE` 결과가 `dev` 이므로 `.env` 의 환경변수가 컨테이너 내부로 전달되었음을 확인했다.
-- `docker compose logs web helper` 에서 `web-1 ... "GET / HTTP/1.1" 200 ... "Wget"` 로그가 남았으므로, `helper` 의 `wget` 요청이 실제로 `web` 에 도달했다는 점을 두 번째로 확인할 수 있다.
-- 마지막 `docker compose down` 으로 멀티 컨테이너 실습 환경을 다시 정리했다.
+- `up`: `web`, `helper` 실행
+- `exec helper`: `helper -> web` 통신 확인
+- `exec web`: `APP_MODE=dev` 확인
+- `down`: 정리
 
-증거 이미지:
+![Compose 8082 브라우저, 통신, APP_MODE=dev 증거](./docs/assets/bonus-compose-browser-8082-dev.png)
 
-![Compose 8082 브라우저, 통신, APP_MODE=dev 증거](docs/assets/bonus-compose-browser-8082-dev.png)
-
-![Compose 멀티 컨테이너와 서비스 디스커버리 증거](docs/assets/bonus-compose-service-discovery.png)
-
-### 12-4. 환경 변수 변경 검증
+### 12-4. 환경 변수 변경
 
 변경한 `.env`
 
@@ -918,16 +892,15 @@ APP_MODE=prod
 ```
 
 ```bash
-$ docker compose config --environment | grep -E '^(WEB_PORT|APP_MODE)='
-APP_MODE=prod
-WEB_PORT=8083
-
 $ docker compose up -d
+ Network compose_default  Created
+ Container compose-helper-1  Started
+ Container compose-web-1  Started
 
 $ docker compose ps
-NAME               IMAGE          COMMAND                  SERVICE   STATUS   PORTS
-compose-helper-1   busybox:1.36   "sh -c 'while true; …"   helper    Up
-compose-web-1      nginx:alpine   "/docker-entrypoint.…"   web       Up       0.0.0.0:8083->80/tcp
+NAME               IMAGE          COMMAND                  SERVICE   CREATED                  STATUS                  PORTS
+compose-helper-1   busybox:1.36   "sh -c 'while true; …"   helper    Less than a second ago   Up Less than a second   
+compose-web-1      nginx:alpine   "/docker-entrypoint.…"   web       Less than a second ago   Up Less than a second   0.0.0.0:8083->80/tcp, [::]:8083->80/tcp
 
 $ curl -s http://localhost:8083
 <h1>Compose Bonus</h1>
@@ -935,30 +908,21 @@ $ curl -s http://localhost:8083
 $ docker compose exec -T web printenv APP_MODE
 prod
 
-$ docker compose logs web helper
-
 $ docker compose down
+ Container compose-helper-1  Removed
+ Container compose-web-1  Removed
+ Network compose_default  Removed
 ```
 
-명령줄 설명:
+명령 목적:
 
-- `.env` 를 `WEB_PORT=8083`, `APP_MODE=prod` 로 바꾼 뒤 `docker compose config --environment` 를 다시 실행해 보간 값이 실제로 변경되었는지 먼저 확인했다.
-- `docker compose up -d` 는 변경된 설정을 바탕으로 서비스를 다시 생성하고 시작한다.
-- `docker compose ps` 에서 포트가 `8083->80` 으로 바뀐 것을 확인했다.
-- `curl -s http://localhost:8083` 결과가 `<h1>Compose Bonus</h1>` 이므로 새 포트에서도 웹 접속이 가능함을 검증했다.
-- `docker compose exec -T web printenv APP_MODE` 결과가 `prod` 로 바뀌었으므로 환경변수 값이 `dev -> prod` 로 변경되었음을 확인했다.
-- 마지막 `docker compose down` 으로 보너스 실습용 컨테이너와 네트워크를 정리했다.
-- 제출 저장소의 현재 `.env` 파일은 다음 실습과 재현성을 위해 다시 `WEB_PORT=8082`, `APP_MODE=dev` 상태로 복원해 두었다.
+- `.env`: 포트/모드 변경
+- `up`: 변경된 설정으로 실행
+- `ps`: 바뀐 포트 확인
+- `curl`: 새 포트 응답 확인
+- `exec web`: `APP_MODE=prod` 확인
+- `down`: 정리
 
-증거 이미지:
+현재 저장소의 `.env` 는 다시 `WEB_PORT=8082`, `APP_MODE=dev` 상태로 복원해 두었다.
 
-![Compose 8083 브라우저 접속 증거](docs/assets/bonus-compose-browser-8083.png)
-
-![Compose 환경 변수 변경 증거](docs/assets/bonus-compose-env-change.png)
-
-### 12-5. 핵심 검증 결과
-
-- `curl http://localhost:8082` 로 단일 서비스 실행 후 웹 응답을 확인했다.
-- `docker compose exec -T helper sh -lc 'wget -qO- http://web && echo helper-to-web-success'` 결과와 `web` 로그의 `Wget 200` 흔적으로, 멀티 컨테이너 상태에서 서비스 이름 기반 통신이 성공함을 확인했다.
-- `docker compose exec -T web printenv APP_MODE` 결과가 `dev` 에서 `prod` 로 바뀌는 것을 확인했다.
-- `docker compose up`, `docker compose ps`, `docker compose logs`, `docker compose down` 흐름을 실제 로그로 남겨 Compose 운영 명령을 검증했다.
+![Compose 환경 변수 변경 증거](./docs/assets/bonus-compose-env-change.png)
