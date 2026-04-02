@@ -165,37 +165,66 @@ drwxr-xr-x  3 c10hour0574  c10hour0574   96 Apr  3 03:16 dir1
 
 ## 3. 권한 실습
 
-전체 로그:
-- [permissions.txt](docs/logs/permissions.txt)
-
-실행 요약:
-
 ```bash
-$ ls -l note.txt
--rw-r--r--  1 c10hour0574  c10hour0574  15 Apr  2 19:39 note.txt
+$ cd /Users/10hour0574/dev-workstation-setup/practice
 
-$ ls -ld scripts-dir
-drwxr-xr-x  2 c10hour0574  c10hour0574  64 Apr  2 19:39 scripts-dir
+$ touch perm_file.txt
 
-$ chmod 600 note.txt
-$ chmod 700 scripts-dir
+$ mkdir perm_dir
 
-$ ls -l note.txt
--rw-------  1 c10hour0574  c10hour0574  15 Apr  2 19:39 note.txt
+$ ls -l perm_file.txt
+-rw-r--r--  1 c10hour0574  c10hour0574  0 Apr  3 03:18 perm_file.txt
 
-$ ls -ld scripts-dir
-drwx------  2 c10hour0574  c10hour0574  64 Apr  2 19:39 scripts-dir
+$ ls -ld perm_dir
+drwxr-xr-x  2 c10hour0574  c10hour0574  64 Apr  3 03:18 perm_dir
 
-$ chmod 644 note.txt
-$ chmod 755 scripts-dir
+$ chmod 600 perm_file.txt
+
+$ chmod 700 perm_dir
+
+$ ls -l perm_file.txt
+-rw-------  1 c10hour0574  c10hour0574  0 Apr  3 03:18 perm_file.txt
+
+$ ls -ld perm_dir
+drwx------  2 c10hour0574  c10hour0574  64 Apr  3 03:18 perm_dir
+
+$ chmod 644 perm_file.txt
+
+$ chmod 755 perm_dir
+
+$ ls -l perm_file.txt
+-rw-r--r--  1 c10hour0574  c10hour0574  0 Apr  3 03:18 perm_file.txt
+
+$ ls -ld perm_dir
+drwxr-xr-x  2 c10hour0574  c10hour0574  64 Apr  3 03:18 perm_dir
 ```
 
-권한 표기 해석:
+명령어 설명:
+
+1. `touch perm_file.txt`, `mkdir perm_dir`
+파일 1개와 디렉터리 1개를 만들어 권한 실습 대상물을 준비하는 단계다. 이번 실습에서는 `perm_file.txt` 와 `perm_dir` 를 같은 위치에서 비교했다.
+
+2. `ls -l perm_file.txt`, `ls -ld perm_dir`
+권한 변경 전 상태를 확인하는 명령이다. 일반 파일은 `-rw-r--r--`, 디렉터리는 `drwxr-xr-x` 로 시작하는데, 맨 앞 문자는 각각 파일(`-`)과 디렉터리(`d`) 타입을 의미한다.
+
+3. `chmod 600 perm_file.txt`, `chmod 700 perm_dir`
+파일은 소유자만 읽기/쓰기 가능하도록 `600` 으로 바꾸고, 디렉터리는 소유자만 읽기/쓰기/진입 가능하도록 `700` 으로 바꾼다. 이후 `ls` 결과에서 파일은 `-rw-------`, 디렉터리는 `drwx------` 로 바뀐 것을 확인할 수 있다.
+
+4. `chmod 644 perm_file.txt`, `chmod 755 perm_dir`
+마지막으로 파일은 일반적인 읽기 중심 권한인 `644`, 디렉터리는 읽기/진입이 가능한 `755` 로 되돌린다. 변경 후 결과는 각각 `-rw-r--r--`, `drwxr-xr-x` 이다.
+
+권한 숫자 해석:
 
 - `r` 는 읽기, `w` 는 쓰기, `x` 는 실행 또는 디렉터리 진입 권한이다.
+- `r = 4`, `w = 2`, `x = 1`
 - 세 자리 숫자는 `소유자/그룹/기타 사용자` 순서다.
-- `755` 는 `7(rwx) / 5(r-x) / 5(r-x)` 이므로, 디렉터리는 소유자만 쓰기 가능하고 나머지는 읽기/진입만 가능하다.
-- `644` 는 `6(rw-) / 4(r--) / 4(r--)` 이므로, 일반 파일은 소유자만 수정하고 나머지는 읽기만 가능하다.
+- `644 = rw- r-- r--`
+- `755 = rwx r-x r-x`
+- `644` 는 소유자는 읽기/쓰기, 그룹과 기타 사용자는 읽기만 가능하다는 뜻이다.
+- `755` 는 소유자는 읽기/쓰기/진입이 가능하고, 그룹과 기타 사용자는 읽기와 진입만 가능하다는 뜻이다.
+
+전체 로그:
+- [permissions.txt](docs/logs/permissions.txt)
 
 ## 4. Docker 설치 및 기본 점검
 

@@ -1,22 +1,31 @@
-+zsh:4> setopt null_glob
-+zsh:5> cd /Users/10hour0574/dev-workstation-setup
-+zsh:6> rm -rf practice/permissions/note.txt practice/permissions/scripts-dir
-+zsh:7> cd practice/permissions
-+zsh:8> printf 'permission lab\n'
-+zsh:9> mkdir scripts-dir
-+zsh:10> ls -l note.txt
--rw-r--r--  1 c10hour0574  c10hour0574  15 Apr  2 19:39 note.txt
-+zsh:11> ls -ld scripts-dir
-drwxr-xr-x  2 c10hour0574  c10hour0574  64 Apr  2 19:39 scripts-dir
-+zsh:12> chmod 600 note.txt
-+zsh:13> chmod 700 scripts-dir
-+zsh:14> ls -l note.txt
--rw-------  1 c10hour0574  c10hour0574  15 Apr  2 19:39 note.txt
-+zsh:15> ls -ld scripts-dir
-drwx------  2 c10hour0574  c10hour0574  64 Apr  2 19:39 scripts-dir
-+zsh:16> chmod 644 note.txt
-+zsh:17> chmod 755 scripts-dir
-+zsh:18> ls -l note.txt
--rw-r--r--  1 c10hour0574  c10hour0574  15 Apr  2 19:39 note.txt
-+zsh:19> ls -ld scripts-dir
-drwxr-xr-x  2 c10hour0574  c10hour0574  64 Apr  2 19:39 scripts-dir
+$ cd /Users/10hour0574/dev-workstation-setup/practice
+
+$ touch perm_file.txt
+
+$ mkdir perm_dir
+
+$ ls -l perm_file.txt
+-rw-r--r--  1 c10hour0574  c10hour0574  0 Apr  3 03:18 perm_file.txt
+
+$ ls -ld perm_dir
+drwxr-xr-x  2 c10hour0574  c10hour0574  64 Apr  3 03:18 perm_dir
+
+$ chmod 600 perm_file.txt
+
+$ chmod 700 perm_dir
+
+$ ls -l perm_file.txt
+-rw-------  1 c10hour0574  c10hour0574  0 Apr  3 03:18 perm_file.txt
+
+$ ls -ld perm_dir
+drwx------  2 c10hour0574  c10hour0574  64 Apr  3 03:18 perm_dir
+
+$ chmod 644 perm_file.txt
+
+$ chmod 755 perm_dir
+
+$ ls -l perm_file.txt
+-rw-r--r--  1 c10hour0574  c10hour0574  0 Apr  3 03:18 perm_file.txt
+
+$ ls -ld perm_dir
+drwxr-xr-x  2 c10hour0574  c10hour0574  64 Apr  3 03:18 perm_dir
