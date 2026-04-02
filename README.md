@@ -437,6 +437,10 @@ orbstack-web-lab
 7. `docker stop orbstack-web-lab`
    실행 중인 컨테이너를 정지한다. 이 명령은 컨테이너를 삭제하지 않고 실행만 멈추므로, 이후 다시 `docker ps -a` 를 보면 `Exited` 상태로 남아 있는 것을 확인할 수 있다.
 
+참고 이미지:
+
+![orbstack-web-lab 중지 상태](docs/assets/orbstack-web-lab-stopped.png)
+
 ## 6. 웹 서버 소스 작성, Dockerfile 작성, 이미지 빌드, 포트 매핑 실행
 
 실행 로그:
