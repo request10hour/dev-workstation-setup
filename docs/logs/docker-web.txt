@@ -2,21 +2,21 @@ $ docker build -t workstation-web:1.0 .
 
 $ docker images
 REPOSITORY        TAG           IMAGE ID       CREATED          SIZE
-workstation-web   1.0           1bd4ac3adf51   21 seconds ago   62.2MB
-<none>            <none>        6503e0463c4f   17 minutes ago   62.2MB
-<none>            <none>        a8c3b6ffd607   2 hours ago      62.2MB
+workstation-web   1.0           a83ff33665b4   19 seconds ago   62.2MB
+<none>            <none>        1bd4ac3adf51   4 minutes ago    62.2MB
+<none>            <none>        6503e0463c4f   22 minutes ago   62.2MB
 workstation-web   compose       0a44ae70aadc   2 hours ago      62.2MB
-<none>            <none>        d70e3a08b65f   2 hours ago      62.2MB
+<none>            <none>        a8c3b6ffd607   2 hours ago      62.2MB
 
 $ docker run -d --name mission-web -p 8088:80 workstation-web:1.0
-716ec3f34d3345c10337f55281db690702e33f8478623d164f605f385c1f45a1
+1645aed2bef63105ffbaff523e90e834b95a721019c886400270763aa193d224
 
 $ docker ps
-CONTAINER ID   IMAGE                 COMMAND                  CREATED             STATUS                  PORTS                                     NAMES
-716ec3f34d33   workstation-web:1.0   "/docker-entrypoint.…"   1 second ago        Up Less than a second   0.0.0.0:8088->80/tcp, [::]:8088->80/tcp   mission-web
-1f6c5574cdf6   nginx:alpine          "/docker-entrypoint.…"   8 minutes ago       Up 8 minutes            0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   bind-web
-c2b38a808a53   nginx:1.29-alpine     "/docker-entrypoint.…"   14 minutes ago      Up 14 minutes           0.0.0.0:8089->80/tcp, [::]:8089->80/tcp   mission-bind
-6f421b957273   ubuntu                "bash"                   About an hour ago   Up About an hour                                                  ubuntu-lab
+CONTAINER ID   IMAGE                 COMMAND                  CREATED                  STATUS                  PORTS                                     NAMES
+1645aed2bef6   workstation-web:1.0   "/docker-entrypoint.…"   Less than a second ago   Up Less than a second   0.0.0.0:8088->80/tcp, [::]:8088->80/tcp   mission-web
+1f6c5574cdf6   nginx:alpine          "/docker-entrypoint.…"   12 minutes ago           Up 12 minutes           0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   bind-web
+c2b38a808a53   nginx:1.29-alpine     "/docker-entrypoint.…"   19 minutes ago           Up 19 minutes           0.0.0.0:8089->80/tcp, [::]:8089->80/tcp   mission-bind
+6f421b957273   ubuntu                "bash"                   About an hour ago        Up About an hour                                                  ubuntu-lab
 
 $ docker logs mission-web | sed -n '1,8p'
 /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration

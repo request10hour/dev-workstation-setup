@@ -457,8 +457,6 @@ orbstack-web-lab
 </head>
 <body>
   <h1>Hello Web Server</h1>
-  <p>Docker Custom Web Server</p>
-  <p>APP_ENV=mission</p>
 </body>
 </html>
 ```
