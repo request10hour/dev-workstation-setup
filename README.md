@@ -28,6 +28,7 @@
 │   └── logs/
 │       ├── docker-attach.txt
 │       ├── docker-basics.txt
+│       ├── orbstack-container-practice.txt
 │       ├── docker-volume.txt
 │       ├── docker-web.txt
 │       ├── git-config.txt
@@ -107,6 +108,7 @@ git version 2.53.0
 - [x] `hello-world` 실행
 - [x] `ubuntu` 컨테이너 실행 및 내부 명령 확인
 - [x] `attach` / `exec` 차이 관찰
+- [x] OrbStack에서 `컨테이너 0개` 상태를 확인한 뒤 새 컨테이너 생성 실습
 - [x] Dockerfile 기반 커스텀 이미지 빌드
 - [x] 포트 매핑 접속 검증
 - [x] 바인드 마운트 반영 검증
@@ -274,6 +276,51 @@ ca7456c0e62b   ubuntu:24.04   "bash"   Up ...
 
 - `attach` 는 컨테이너의 메인 프로세스에 직접 붙는다. 메인 `bash` 에서 `exit` 하면 컨테이너도 종료된다.
 - `exec` 는 실행 중인 컨테이너 안에 새 프로세스를 추가로 띄운다. `exec` 로 실행한 셸을 종료해도 메인 프로세스가 살아 있으면 컨테이너는 계속 실행된다.
+
+### 8-4. OrbStack 추가 실습: `컨테이너 0개` 상태에서 새 컨테이너 만들기
+
+실행 로그:
+- [orbstack-container-practice.txt](docs/logs/orbstack-container-practice.txt)
+
+상황 설명:
+
+- 2026-04-03 기준 OrbStack UI 에서는 `Images` 탭에 `hello-world`, `nginx`, `ubuntu`, `workstation-web:1.0` 이미지가 남아 있었지만, `Containers` 탭은 비어 있었다.
+- 이는 이상이 아니라 정상 상태다. 이미지와 컨테이너는 서로 다른 자원이기 때문에, 이미지를 pull/build 해 둔 상태에서도 컨테이너가 하나도 없을 수 있다.
+- 이 상태를 기준으로, 기존 커스텀 이미지 `workstation-web:1.0` 에서 새 컨테이너를 직접 생성해 보았다.
+
+핵심 명령:
+
+```bash
+$ docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+$ docker create --name orbstack-web-lab -p 8092:80 workstation-web:1.0
+a7411076a93ad802fa9d91276f301076c300fdab2677088ffd768db67ba10abd
+
+$ docker ps -a --filter name=orbstack-web-lab
+CONTAINER ID   IMAGE                 COMMAND                  STATUS    PORTS     NAMES
+a7411076a93a   workstation-web:1.0   "/docker-entrypoint.…"   Created             orbstack-web-lab
+
+$ docker start orbstack-web-lab
+orbstack-web-lab
+
+$ docker ps --filter name=orbstack-web-lab
+CONTAINER ID   IMAGE                 STATUS                  PORTS                                     NAMES
+a7411076a93a   workstation-web:1.0   Up Less than a second   0.0.0.0:8092->80/tcp, [::]:8092->80/tcp   orbstack-web-lab
+
+$ curl -s http://localhost:8092 | grep -o "<title>AI/SW 개발 워크스테이션 구축</title>"
+<title>AI/SW 개발 워크스테이션 구축</title>
+
+$ docker stop orbstack-web-lab
+orbstack-web-lab
+```
+
+해석:
+
+- `docker create` 는 이미지를 바탕으로 "컨테이너 객체" 를 만들지만 바로 실행하지는 않는다. 그래서 OrbStack `Containers` 탭에 새 항목이 생기고 상태는 `Created` 로 보인다.
+- `docker start` 를 실행하면 방금 만든 컨테이너가 실제 프로세스를 띄우며 실행 상태가 된다.
+- `docker stop` 은 실행만 멈추는 명령이라서, 컨테이너는 삭제되지 않고 `Exited` 상태로 남는다.
+- 즉, 이번 실습은 `이미지 -> 컨테이너 생성 -> 컨테이너 실행 -> 컨테이너 중지` 흐름을 OrbStack UI 기준으로 설명할 수 있게 해 준다.
 
 ## 9. Dockerfile 기반 커스텀 이미지
 
@@ -501,6 +548,7 @@ x64
 - 커스텀 이미지/포트/마운트: [docker-web.txt](docs/logs/docker-web.txt)
 - 볼륨 영속성: [docker-volume.txt](docs/logs/docker-volume.txt)
 - `attach` vs `exec`: [docker-attach.txt](docs/logs/docker-attach.txt)
+- OrbStack 추가 컨테이너 생성 실습: [orbstack-container-practice.txt](docs/logs/orbstack-container-practice.txt)
 - Git 상태 확인: [git-config.txt](docs/logs/git-config.txt)
 - GitHub 공개 저장소 확인: [github-visibility.txt](docs/logs/github-visibility.txt)
 - VSCode GitHub 로그인 증거: [vscode-github-login.png](docs/assets/vscode-github-login.png)

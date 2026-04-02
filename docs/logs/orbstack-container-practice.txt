@@ -1,0 +1,26 @@
+$ docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+$ docker create --name orbstack-web-lab -p 8092:80 workstation-web:1.0
+a7411076a93ad802fa9d91276f301076c300fdab2677088ffd768db67ba10abd
+
+$ docker ps -a --filter name=orbstack-web-lab
+CONTAINER ID   IMAGE                 COMMAND                  CREATED                  STATUS    PORTS     NAMES
+a7411076a93a   workstation-web:1.0   "/docker-entrypoint.…"   Less than a second ago   Created             orbstack-web-lab
+
+$ docker start orbstack-web-lab
+orbstack-web-lab
+
+$ docker ps --filter name=orbstack-web-lab
+CONTAINER ID   IMAGE                 COMMAND                  CREATED                  STATUS                  PORTS                                     NAMES
+a7411076a93a   workstation-web:1.0   "/docker-entrypoint.…"   Less than a second ago   Up Less than a second   0.0.0.0:8092->80/tcp, [::]:8092->80/tcp   orbstack-web-lab
+
+$ curl -s http://localhost:8092 | grep -o "<title>AI/SW 개발 워크스테이션 구축</title>"
+<title>AI/SW 개발 워크스테이션 구축</title>
+
+$ docker stop orbstack-web-lab
+orbstack-web-lab
+
+$ docker ps -a --filter name=orbstack-web-lab
+CONTAINER ID   IMAGE                 COMMAND                  CREATED        STATUS                              PORTS     NAMES
+a7411076a93a   workstation-web:1.0   "/docker-entrypoint.…"   1 second ago   Exited (0) Less than a second ago             orbstack-web-lab
