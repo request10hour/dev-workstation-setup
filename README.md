@@ -920,7 +920,8 @@ $ docker compose down
 
 ![Compose 8083 브라우저, 통신, APP_MODE=prod 증거](./docs/assets/bonus-compose-browser-8083.png)
 
-한 줄 요약: Docker Compose를 사용하면 웹 서비스 실행 설정과 운영 명령을 한 파일로 문서화해 재현성과 관리성을 높일 수 있고, `up / ps / logs / down` 운영 흐름과 서비스 간 통신, 환경변수 변경까지 같은 방식으로 반복 검증할 수 있다.
+요약: Docker Compose를 사용하면 웹 서비스 실행 설정과 운영 명령을 한 파일로 문서화해 재현성과 관리성을 높일 수 있고, `up / ps / logs / down` 운영 흐름과 서비스 간 통신, 환경변수 변경까지 같은 방식으로 반복 검증할 수 있다.
+또한 `APP_MODE=dev`, `APP_MODE=prod` 값이 `printenv APP_MODE` 로 실제 컨테이너 내부에서 확인된 것은, `.env` 에 적은 설정값이 서비스 실행환경에 실제로 전달된다는 의미다.
 
 ## 13. GitHub SSH 키 생성 및 SSH 원격 전환
 
