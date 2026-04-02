@@ -712,8 +712,6 @@ c41532c37591   mission-web   0.00%     4.945MiB / 15.67GiB   0.03%     1.84kB / 
 
 ## 10. Git / GitHub / VSCode 연동
 
-명령줄 실행:
-
 ```bash
 $ git config --global user.name "request10hour"
 
@@ -721,18 +719,10 @@ $ git config --global user.email "request10hour@gmail.com"
 
 $ git config --global init.defaultBranch main
 
-$ git config --list --show-origin
-
 $ code .
 
 # VSCode 안에서 GitHub 로그인 진행
 # VSCode 안에서 현재 저장소 열기 및 Source Control 연동 확인
-
-$ git remote -v
-
-$ git push -u origin main
-
-$ curl -s https://api.github.com/repos/request10hour/dev-workstation-setup | rg '"private"|"visibility"|"default_branch"'
 ```
 
 명령줄 설명:
@@ -743,50 +733,14 @@ $ curl -s https://api.github.com/repos/request10hour/dev-workstation-setup | rg 
    Git 커밋 작성자 이메일을 전역 설정하는 명령이다.
 3. `git config --global init.defaultBranch main`
    새 저장소 기본 브랜치 이름을 `main` 으로 맞추는 명령이다.
-4. `git config --list --show-origin`
-   실제로 어떤 설정 파일에서 값이 읽히는지까지 함께 확인하는 명령이다.
-5. `code .`
+4. `code .`
    현재 저장소를 VSCode로 여는 명령이다. 이후 VSCode 안에서 GitHub 로그인과 저장소 연동을 진행할 수 있다.
-6. `git remote -v`
-   현재 연결된 원격 저장소 주소를 확인하는 명령이다.
-7. `git push -u origin main`
-   현재 브랜치를 원격 `origin/main` 에 업로드하고, 이후 기본 upstream 으로 연결하는 명령이다.
-8. `curl -s https://api.github.com/repos/request10hour/dev-workstation-setup | rg '"private"|"visibility"|"default_branch"'`
-   GitHub API 응답을 통해 저장소 공개 여부와 기본 브랜치를 다시 확인하는 명령이다.
 
-현재 로그:
-- [git-config.txt](docs/logs/git-config.txt)
-- [github-visibility.txt](docs/logs/github-visibility.txt)
+VSCode 로그인 증거:
 
-확인 결과:
+![운영 명령 검증 추가 화면](docs/assets/vscode-github-login.png)
 
-```bash
-$ git config --global --get user.name
-request10hour
-
-$ git config --global --get user.email
-request10hour@gmail.com
-
-$ git config --global --get init.defaultBranch
-main
-
-$ curl -s https://api.github.com/repos/request10hour/dev-workstation-setup | rg '"private"|"visibility"|"default_branch"'
-"private": false,
-"visibility": "public",
-"default_branch": "main"
-
-$ code --version
-1.112.0
-07ff9d6178ede9a1bd12ad3399074d726ebe6e43
-x64
-```
-
-최종 상태:
-
-1. Git 사용자 정보 설정 완료
-2. VSCode GitHub 로그인 증거 첨부 완료
-3. `main` 브랜치 push 완료
-4. 제출 저장소 링크 확인 완료
+![Git 연동 추가 화면](docs/assets/git-section-extra.png)
 
 ## 11. 검증 방법 요약
 
