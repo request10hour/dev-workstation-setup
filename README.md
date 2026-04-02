@@ -875,6 +875,8 @@ $ docker compose down
 
 ![Compose 8082 브라우저, 통신, APP_MODE=dev 증거](./docs/assets/bonus-compose-browser-8082-dev.png)
 
+![Compose helper 출력 증거](./docs/assets/bonus-compose-helper-output.png)
+
 ### 12-4. 환경 변수 변경
 
 변경한 `.env`
