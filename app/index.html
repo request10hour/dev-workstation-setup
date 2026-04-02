@@ -42,16 +42,21 @@
         backdrop-filter: blur(12px);
       }
 
+      .eyebrow {
+        display: inline-block;
+        margin-bottom: 14px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(0, 95, 115, 0.1);
+        color: var(--accent);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+
       h1 {
         margin: 0 0 14px;
         font-size: clamp(2rem, 4vw, 3.4rem);
         line-height: 1.1;
-      }
-
-      .lead {
-        margin: 0 0 22px;
-        font-size: 1.05rem;
-        line-height: 1.7;
       }
 
       .checks {
@@ -84,8 +89,8 @@
   </head>
   <body>
     <main>
+      <span class="eyebrow">Dockerfile + NGINX Demo</span>
       <h1>AI/SW 개발 워크스테이션 구축</h1>
-      <p class="lead">커스텀 이미지 실행과 브라우저 접속 검증을 위한 과제용 웹페이지입니다.</p>
       <ul class="checks">
         <li class="check"><strong>커스텀 이미지</strong>Dockerfile로 빌드한 웹 서버 이미지 실행 확인</li>
         <li class="check"><strong>포트 매핑</strong>호스트 포트와 컨테이너 포트를 연결해 접속 확인</li>
