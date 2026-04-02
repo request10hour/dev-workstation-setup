@@ -38,6 +38,13 @@ services:
         target: 80
         published: "8093"
         protocol: tcp
+    volumes:
+      - type: bind
+        source: /Users/10hour0574/dev-workstation-setup/bonus/compose/site
+        target: /usr/share/nginx/html
+        read_only: true
+        bind:
+          create_host_path: true
 networks:
   bonus-net:
     name: workstation-bonus_bonus-net
@@ -56,8 +63,7 @@ $ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.en
 #3 DONE 0.0s
 
 #4 [internal] load .dockerignore
-#4 transferring context:
-#4 transferring context: 69B done
+#4 transferring context: 75B done
 #4 DONE 0.1s
 
 #5 [1/2] FROM docker.io/library/nginx:1.29-alpine
@@ -65,14 +71,15 @@ $ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.en
 
 #6 [internal] load build context
 #6 transferring context: 59B done
-#6 DONE 0.1s
+#6 DONE 0.0s
 
 #7 [2/2] COPY app/ /usr/share/nginx/html/
 #7 CACHED
 
 #8 exporting to image
 #8 exporting layers done
-#8 writing image sha256:0486825c30e07f7724815fc0533efd1911e88008bfa24c1a305c22bc5418cb70 done
+#8 writing image sha256:0a44ae70aadc1364cf6f848c53b5dc9678008c77a80e7ba8b2790302bd4e12e3 0.0s done
+#8 naming to docker.io/library/workstation-web:compose
 #8 naming to docker.io/library/workstation-web:compose 0.0s done
 #8 DONE 0.1s
 

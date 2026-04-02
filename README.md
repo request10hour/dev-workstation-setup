@@ -20,7 +20,9 @@
 │   └── compose/
 │       ├── bonus.env
 │       ├── browser-frame.html
-│       └── compose.yaml
+│       ├── compose.yaml
+│       └── site/
+│           └── index.html
 ├── Dockerfile
 ├── .dockerignore
 ├── app/
@@ -686,6 +688,7 @@ docker exec mission-volume-2 bash -lc "cat /data/hello.txt"
 - Compose 파일: [compose.yaml](bonus/compose/compose.yaml)
 - 환경변수 파일: [bonus.env](bonus/compose/bonus.env)
 - 캡처 프레임 템플릿: [browser-frame.html](bonus/compose/browser-frame.html)
+- Compose 전용 웹 페이지: [index.html](bonus/compose/site/index.html)
 - 실행 로그: [bonus-compose.txt](docs/logs/bonus-compose.txt)
 - 접속 캡처: [bonus-compose-8093.png](docs/assets/bonus-compose-8093.png)
 
@@ -699,7 +702,7 @@ docker exec mission-volume-2 bash -lc "cat /data/hello.txt"
 
 ### 20-2. Docker Compose 기초: 단일 서비스
 
-`web` 서비스는 기존 과제의 `Dockerfile` 을 그대로 재사용해 이미지를 빌드하고, `BONUS_WEB_PORT` 환경변수로 호스트 포트를 정한다.
+`web` 서비스는 기존 과제의 `Dockerfile` 을 그대로 재사용해 이미지를 빌드하고, Compose 전용 페이지인 `bonus/compose/site/` 를 읽기 전용으로 마운트한다. 호스트 포트는 `BONUS_WEB_PORT` 환경변수로 정한다.
 
 ```bash
 $ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env up -d --build
