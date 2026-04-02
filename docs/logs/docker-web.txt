@@ -1,64 +1,24 @@
 $ docker build -t workstation-web:1.0 .
-#0 building with "orbstack" instance using docker driver
-
-#1 [internal] load build definition from Dockerfile
-#1 transferring dockerfile: 277B done
-#1 DONE 0.1s
-
-#2 [internal] load metadata for docker.io/library/nginx:1.29-alpine
-#2 DONE 0.0s
-
-#3 [internal] load .dockerignore
-#3 transferring context: 75B done
-#3 DONE 0.1s
-
-#4 [1/2] FROM docker.io/library/nginx:1.29-alpine
-#4 DONE 0.0s
-
-#5 [internal] load build context
-#5 transferring context: 59B done
-#5 DONE 0.1s
-
-#6 [2/2] COPY app/ /usr/share/nginx/html/
-#6 CACHED
-
-#7 exporting to image
-#7 exporting layers done
-#7 writing image sha256:6503e0463c4fe8c32353fb8dac75ebd9c0802363da5d566a1a6774d9acf477d0
-#7 writing image sha256:6503e0463c4fe8c32353fb8dac75ebd9c0802363da5d566a1a6774d9acf477d0 done
-#7 naming to docker.io/library/workstation-web:1.0 done
-#7 DONE 0.0s
 
 $ docker images
-REPOSITORY        TAG           IMAGE ID       CREATED             SIZE
-workstation-web   1.0           6503e0463c4f   2 minutes ago       62.2MB
-workstation-web   compose       0a44ae70aadc   About an hour ago   62.2MB
-<none>            <none>        a8c3b6ffd607   About an hour ago   62.2MB
-<none>            <none>        d70e3a08b65f   About an hour ago   62.2MB
-<none>            <none>        50c15a40d11f   About an hour ago   62.2MB
+REPOSITORY        TAG           IMAGE ID       CREATED          SIZE
+workstation-web   1.0           1bd4ac3adf51   21 seconds ago   62.2MB
+<none>            <none>        6503e0463c4f   17 minutes ago   62.2MB
+<none>            <none>        a8c3b6ffd607   2 hours ago      62.2MB
+workstation-web   compose       0a44ae70aadc   2 hours ago      62.2MB
+<none>            <none>        d70e3a08b65f   2 hours ago      62.2MB
 
 $ docker run -d --name mission-web -p 8088:80 workstation-web:1.0
-4ddb5c839af8c0a2234f4bb43855e2733dc7e69b52554e2a4d8a31bf936bd142
+716ec3f34d3345c10337f55281db690702e33f8478623d164f605f385c1f45a1
 
 $ docker ps
-CONTAINER ID   IMAGE                 COMMAND                  CREATED                  STATUS                  PORTS                                     NAMES
-4ddb5c839af8   workstation-web:1.0   "/docker-entrypoint.…"   Less than a second ago   Up Less than a second   0.0.0.0:8088->80/tcp, [::]:8088->80/tcp   mission-web
-05590fd584da   nginx:1.29-alpine     "/docker-entrypoint.…"   2 minutes ago            Up 2 minutes            0.0.0.0:8089->80/tcp, [::]:8089->80/tcp   mission-bind
-6f421b957273   ubuntu                "bash"                   47 minutes ago           Up 47 minutes                                                     ubuntu-lab
+CONTAINER ID   IMAGE                 COMMAND                  CREATED             STATUS                  PORTS                                     NAMES
+716ec3f34d33   workstation-web:1.0   "/docker-entrypoint.…"   1 second ago        Up Less than a second   0.0.0.0:8088->80/tcp, [::]:8088->80/tcp   mission-web
+1f6c5574cdf6   nginx:alpine          "/docker-entrypoint.…"   8 minutes ago       Up 8 minutes            0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   bind-web
+c2b38a808a53   nginx:1.29-alpine     "/docker-entrypoint.…"   14 minutes ago      Up 14 minutes           0.0.0.0:8089->80/tcp, [::]:8089->80/tcp   mission-bind
+6f421b957273   ubuntu                "bash"                   About an hour ago   Up About an hour                                                  ubuntu-lab
 
 $ docker logs mission-web | sed -n '1,8p'
-2026/04/02 19:16:19 [notice] 1#1: using the "epoll" event method
-2026/04/02 19:16:19 [notice] 1#1: nginx/1.29.7
-2026/04/02 19:16:19 [notice] 1#1: built by gcc 15.2.0 (Alpine 15.2.0) 
-2026/04/02 19:16:19 [notice] 1#1: OS: Linux 6.17.8-orbstack-00308-g8f9c941121b1
-2026/04/02 19:16:19 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 20480:1048576
-2026/04/02 19:16:19 [notice] 1#1: start worker processes
-2026/04/02 19:16:19 [notice] 1#1: start worker process 30
-2026/04/02 19:16:19 [notice] 1#1: start worker process 31
-2026/04/02 19:16:19 [notice] 1#1: start worker process 32
-2026/04/02 19:16:19 [notice] 1#1: start worker process 33
-2026/04/02 19:16:19 [notice] 1#1: start worker process 34
-2026/04/02 19:16:19 [notice] 1#1: start worker process 35
 /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
 /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
 /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
@@ -70,21 +30,3 @@ $ docker logs mission-web | sed -n '1,8p'
 
 $ curl -s http://localhost:8088 | grep -o "<title>Hello Web Server</title>"
 <title>Hello Web Server</title>
-
-$ cp -R app practice/bind-site
-
-$ docker rm -f mission-bind
-
-$ docker run -d --name mission-bind -p 8089:80 -v "$PWD/practice/bind-site:/usr/share/nginx/html" nginx:1.29-alpine
-c2b38a808a537bc322fc62ab8d238852fcf220444a4981c257f3431294493b3a
-
-$ curl -s http://localhost:8089 | grep -F "Dockerfile + NGINX Demo"
-      <span class="eyebrow">Dockerfile + NGINX Demo</span>
-
-$ perl -0pi -e "s/Dockerfile \+ NGINX Demo/Bind Mount Updated/g" practice/bind-site/index.html
-
-$ grep -F "Bind Mount Updated" practice/bind-site/index.html
-      <span class="eyebrow">Bind Mount Updated</span>
-
-$ curl -s http://localhost:8089 | grep -F "Bind Mount Updated"
-      <span class="eyebrow">Bind Mount Updated</span>

@@ -449,18 +449,17 @@ orbstack-web-lab
 `app/index.html` 핵심 구조:
 
 ```html
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="utf-8" />
-    <title>Hello Web Server</title>
-  </head>
-  <body>
-    <main>
-      <span class="eyebrow">Dockerfile + NGINX Demo</span>
-      <h1>Hello World</h1>
-    </main>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>Hello Web Server</title>
+</head>
+<body>
+  <h1>Hello Web Server</h1>
+  <p>Docker Custom Web Server</p>
+  <p>APP_ENV=mission</p>
+</body>
 </html>
 ```
 

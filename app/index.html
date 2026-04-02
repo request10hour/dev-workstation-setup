@@ -1,75 +1,12 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Hello Web Server</title>
-    <style>
-      :root {
-        color-scheme: light;
-        --bg: #f4f1ea;
-        --card: rgba(255, 255, 255, 0.85);
-        --ink: #1f2933;
-        --accent: #005f73;
-        --accent-2: #ca6702;
-        --line: rgba(31, 41, 51, 0.14);
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        min-height: 100vh;
-        font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-        color: var(--ink);
-        background:
-          radial-gradient(circle at top left, rgba(238, 155, 0, 0.18), transparent 32%),
-          linear-gradient(135deg, #fdf7ed 0%, #dceef2 100%);
-        display: grid;
-        place-items: center;
-        padding: 24px;
-      }
-
-      main {
-        width: min(680px, 100%);
-        background: var(--card);
-        border: 1px solid var(--line);
-        border-radius: 28px;
-        padding: 40px 36px;
-        box-shadow: 0 24px 60px rgba(31, 41, 51, 0.12);
-        backdrop-filter: blur(12px);
-        text-align: center;
-      }
-
-      .eyebrow {
-        display: inline-block;
-        margin-bottom: 18px;
-        padding: 7px 12px;
-        border-radius: 999px;
-        background: rgba(0, 95, 115, 0.1);
-        color: var(--accent);
-        font-weight: 700;
-        letter-spacing: 0.04em;
-      }
-
-      h1 {
-        margin: 0;
-        font-size: clamp(3rem, 8vw, 5rem);
-        line-height: 1;
-        letter-spacing: -0.03em;
-      }
-
-      code {
-        font-family: "SFMono-Regular", "Menlo", monospace;
-      }
-    </style>
-  </head>
-  <body>
-    <main>
-      <span class="eyebrow">Dockerfile + NGINX Demo</span>
-      <h1>Hello World</h1>
-    </main>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>Hello Web Server</title>
+</head>
+<body>
+  <h1>Hello Web Server</h1>
+  <p>Docker Custom Web Server</p>
+  <p>APP_ENV=mission</p>
+</body>
 </html>
