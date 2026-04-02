@@ -813,7 +813,7 @@ services:
 - `site/index.html` 은 바인드 마운트 예시처럼 `<h1>Compose Bonus</h1>` 한 줄만 가진 아주 단순한 웹 페이지로 만들었다.
 - `web` 서비스는 `nginx:alpine` 으로 이 정적 HTML 을 제공한다.
 - `helper` 서비스는 BusyBox 기반 보조 컨테이너로, Compose 기본 네트워크에서 `web` 이라는 서비스 이름으로 웹 서버에 접근하는 실험에 사용했다.
-- `.env` 파일의 `WEB_PORT`, `APP_MODE` 값은 Compose 보간에 사용된다.
+- `.env` 파일의 `WEB_PORT`, `APP_MODE` 값은 Compose 보간에 사용된다. 즉 `${WEB_PORT}` 는 `ports` 항목에서 호스트 포트를 결정하는 값으로 치환되어 `8082:80`, `8083:80` 같은 매핑을 만들고, `${APP_MODE}` 는 `environment` 항목에서 컨테이너 내부 환경변수 `APP_MODE` 값으로 전달된다. 그래서 `.env` 파일을 바꾸고 `docker compose up -d` 를 다시 실행하면, 브라우저로 접속하는 포트와 `printenv APP_MODE` 로 확인하는 실행 모드가 함께 바뀌는 것을 검증할 수 있다.
 
 ### 12-2. 단일 서비스 실행
 
