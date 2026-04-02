@@ -766,165 +766,74 @@ Github 연동 증거:
 - 배운 점:
   원격 저장소 주소가 연결되어 있다고 해서 인증까지 끝난 것은 아니다. 특히 HTTPS 방식은 GitHub 로그인 또는 토큰 저장이 완료되어야 push 가 가능하다. 이후 같은 문제가 반복되면 SSH 키를 등록해 `git@github.com:...` 형식으로 바꾸는 것도 좋은 대안이다.
 
-## 12. 보너스 1. Docker Compose 기본 사용
+## 12. 보너스 1. Docker Compose 기초, 멀티 컨테이너, 운영 명령, 환경 변수 활용
 
-핵심 메시지:
+이 섹션에서는 `docker-compose.yml`을 사용하여 복잡한 컨테이너 관리 루틴을 선언적으로 구축하고 자동화하는 과정을 실증합니다.
 
-- Compose 파일은 실행 설정을 문서화한다.
-- `up / down / ps / logs` 로 기본 운영 루틴을 만든다.
-- 서비스 이름 `web` 으로 컨테이너 간 통신이 된다.
-- `.env` 로 포트와 모드를 바꿔 설정과 코드를 분리할 수 있다.
+### 12-1. Docker Compose 기초
+- **목표**: `docker-compose.yml`의 기본 구조를 학습하고, 단일 서비스를 Compose로 실행합니다.
+- **실행 및 검증**:
+  ```bash
+  $ cd bonus/compose
+  $ docker compose up -d web
+  ```
+  `docker compose up -d web` 명령으로 `docker-compose.yml`에 정의된 `web` 단일 컨테이너(nginx)를 백그라운드에서 실행했습니다. 브라우저에서 `localhost:8082`로 접속하여 `<h1>Compose Bonus</h1>` 응답이 반환됨을 확인했습니다.
+- **배움 포인트**: 이미지, 포트 매핑, 볼륨 마운트, 환경 변수 등 컨테이너 실행에 필요한 방대한 옵션을 `docker-compose.yml` 하나의 파일로 기록했습니다. 이를 통해 터미널에서 실행될 명령어의 길이와 복잡도는 줄어들며, 언제 누가 실행하더라도 **"문서화된 실행 설정"** 덕분에 완벽하게 동일한 실행 환경을 재현하게 됩니다.
 
-### 12-1. 파일 준비
+브라우저 접속 증거:
 
-`site/index.html`
+![Compose 단일 서비스 확인](docs/assets/compose-bonus.png)
 
-```html
-<h1>Compose Bonus</h1>
-```
+### 12-2. Docker Compose 멀티 컨테이너 (네트워크/서비스 디스커버리)
+- **목표**: 웹 서버와 보조 서비스 컨테이너를 함께 실행해, 내부 네트워크 통신을 확인합니다.
+- **실행 및 검증**:
+  ```bash
+  $ docker compose up -d
+  $ docker compose exec -T helper sh -lc 'wget -qO- http://web'
+  <h1>Compose Bonus</h1>
+  ```
+  `up -d`를 통해 `web`과 `helper` 서비스 2개를 동시에 구동했습니다. 이후 `helper` 컨테이너 내부에서 임의의 IP 주소 대신 `http://web`이라는 "서비스 이름"만으로 요청을 보냈고, 성공적으로 웹 페이지 응답을 받아왔습니다.
+- **배움 포인트**: 복수의 컨테이너를 Compose로 함께 띄우면, 자동으로 디폴트 네트워크가 형성되어 컨테이너들을 묶습니다. IP 주소가 계속 바뀌는 환경이라도, 각 컨테이너는 Docker 내장 DNS를 통해 서비스 이름(`web`)으로 서로의 주소를 알아내어(서비스 디스커버리) 안정적인 네트워크 통신을 유지합니다.
 
-`.env`
+터미널 통신 증거:
 
-```env
-WEB_PORT=8082
-APP_MODE=dev
-```
+![helper에서 web으로의 통신 확인](docs/assets/compose-multi-comm.png)
 
-`docker-compose.yml`
+### 12-3. Compose 운영 명령어 습득
+- **목표**: `up, down, ps, logs`를 사용해 상태 확인 루틴을 확립합니다.
+- **실행 및 검증**:
+  ```bash
+  $ docker compose ps
+  NAME               SERVICE   STATUS                  PORTS
+  compose-helper-1   helper    Up Less than a second
+  compose-web-1      web       Up Less than a second   0.0.0.0:8082->80/tcp
+  
+  $ docker compose logs web
+  # NGINX 구동 및 접속 로그가 출력됨
+  
+  $ docker compose down
+  # 일괄 중지 및 네트워크 정리됨
+  ```
+- **배움 포인트**: Compose는 `up`, `down`, `ps`, `logs`와 같은 단순화된 운영 명령을 통해 하나의 통합 환경(Project) 안에서 실행/종료/상태/로그 조회를 일괄 통제합니다. 이는 장애 시 전체 복구와 로그 분석을 빠르게 만들어 운영 관점의 확실한 "상태 확인 루틴"으로 기능합니다.
 
-```yaml
-services:
-  web:
-    image: nginx:alpine
-    ports:
-      - "${WEB_PORT}:80"
-    volumes:
-      - ./site:/usr/share/nginx/html:ro
-    environment:
-      APP_MODE: ${APP_MODE}
+### 12-4. 환경 변수 활용 (설정과 코드의 분리)
+- **목표**: 환경 변수를 외부에서 주입 받아 포트와 모드를 변경합니다.
+- **실행 및 검증**:
+  `.env` 파일 내용 변경 전: `WEB_PORT=8082`, `APP_MODE=dev`
+  `.env` 파일 내용 변경 후: `WEB_PORT=8083`, `APP_MODE=prod`
+  ```bash
+  $ docker compose up -d
+  # ps 명령어로 호스트의 8083 포트로 매핑이 전환된 것을 확인
 
-  helper:
-    image: busybox:1.36
-    command: sh -c "while true; do echo helper-alive; sleep 30; done"
-```
+  $ docker compose exec -T web printenv APP_MODE
+  prod
+  ```
+- **배움 포인트**: Compose 서비스 설정에 `${APP_MODE}` 등 환경 변수 참조를 구성해 두면, 실제 컨테이너 구동 규칙이나 Dockerfile 수정 없이 `.env` 파일의 내용 변경만으로 실행 환경(개발 vs 상용)을 동적으로 제어할 수 있습니다. 이는 "설정과 소스 코드의 독립적인 분리"라는 중요한 12-Factor App 원칙을 충족시킵니다.
 
-### 12-2. 단일 서비스 실행
+환경 변수 적용 증거:
 
-```bash
-$ cd /Users/10hour0574/dev-workstation-setup/bonus/compose
+![APP_MODE 환경변수 확인](docs/assets/compose-env-check.png)
 
-$ docker compose up -d web
- Network compose_default  Created
- Container compose-web-1  Created
- Container compose-web-1  Started
-
-$ docker compose ps
-NAME            IMAGE          COMMAND                  SERVICE   CREATED                  STATUS                  PORTS
-compose-web-1   nginx:alpine   "/docker-entrypoint.…"   web       Less than a second ago   Up Less than a second   0.0.0.0:8082->80/tcp, [::]:8082->80/tcp
-
-$ docker compose logs web
-web-1  | /docker-entrypoint.sh: Configuration complete; ready for start up
-web-1  | 2026/04/02 21:18:54 [notice] 1#1: nginx/1.29.7
-web-1  | 2026/04/02 21:18:54 [notice] 1#1: start worker process 35
-
-$ curl -s http://localhost:8082
-<h1>Compose Bonus</h1>
-
-$ docker compose down
- Container compose-web-1  Removed
- Network compose_default  Removed
-```
-
-명령 목적:
-
-- `up`: 실행
-- `ps`: 상태/포트 확인
-- `logs`: 서비스 로그 확인
-- `curl`: 웹 응답 확인
-- `down`: 정리
-
-![Compose 8082 브라우저 접속 증거](./docs/assets/bonus-compose-browser-8082.png)
-
-### 12-3. 멀티 컨테이너 실행
-
-```bash
-$ docker compose up -d
- Network compose_default  Created
- Container compose-web-1  Started
- Container compose-helper-1  Started
-
-$ docker compose exec -T helper sh -lc 'wget -qO- http://web && echo helper-to-web-success'
-<h1>Compose Bonus</h1>
-helper-to-web-success
-
-$ docker compose exec -T web printenv APP_MODE
-dev
-
-$ docker compose down
- Container compose-helper-1  Removed
- Container compose-web-1  Removed
- Network compose_default  Removed
-```
-
-명령 목적:
-
-- `up`: `web`, `helper` 실행
-- `exec helper`: `helper -> web` 통신 확인
-- `exec web`: `APP_MODE=dev` 확인
-- `down`: 정리
-
-![Compose 8082 브라우저, 통신, APP_MODE=dev 증거](./docs/assets/bonus-compose-browser-8082-dev.png)
-
-![Compose helper 출력 증거](./docs/assets/bonus-compose-helper-output.png)
-
-### 12-4. 환경 변수 변경
-
-변경한 `.env`
-
-```env
-WEB_PORT=8083
-APP_MODE=prod
-```
-
-```bash
-$ docker compose up -d
- Network compose_default  Created
- Container compose-helper-1  Started
- Container compose-web-1  Started
-
-$ docker compose ps
-NAME               IMAGE          COMMAND                  SERVICE   CREATED                  STATUS                  PORTS
-compose-helper-1   busybox:1.36   "sh -c 'while true; …"   helper    Less than a second ago   Up Less than a second   
-compose-web-1      nginx:alpine   "/docker-entrypoint.…"   web       Less than a second ago   Up Less than a second   0.0.0.0:8083->80/tcp, [::]:8083->80/tcp
-
-$ curl -s http://localhost:8083
-<h1>Compose Bonus</h1>
-
-$ docker compose exec -T web printenv APP_MODE
-prod
-
-$ docker compose down
- Container compose-helper-1  Removed
- Container compose-web-1  Removed
- Network compose_default  Removed
-```
-
-명령 목적:
-
-- `.env`: 포트/모드 변경
-- `up`: 변경된 설정으로 실행
-- `ps`: 바뀐 포트 확인
-- `curl`: 새 포트 응답 확인
-- `exec web`: `APP_MODE=prod` 확인
-- `down`: 정리
-
-![Compose 8083 브라우저, 통신, APP_MODE=prod 증거](./docs/assets/bonus-compose-browser-8083.png)
-
-요약: Docker Compose를 사용하면 웹 서비스 실행 설정과 운영 명령을 한 파일로 문서화해 재현성과 관리성을 높일 수 있고, `up / ps / logs / down` 운영 흐름과 서비스 간 통신, 환경변수 변경까지 같은 방식으로 반복 검증할 수 있다.
-또한 `APP_MODE=dev`, `APP_MODE=prod` 값이 `printenv APP_MODE` 로 실제 컨테이너 내부에서 확인된 것은, `.env` 에 적은 설정값이 서비스 실행환경에 실제로 전달된다는 의미다.
-
-일반 `docker` 명령은 `docker run -p ... -v ... -e ...` 처럼 컨테이너별 실행 옵션을 한 번씩 직접 적어야 하지만, `docker compose` 는 이런 설정을 `docker-compose.yml` 에 모아 두고 `up / down` 으로 함께 관리할 수 있다는 차이가 있다.
-즉 단일 컨테이너를 빠르게 띄울 때는 일반 `docker` 가 단순하고, 여러 서비스와 포트, 볼륨, 환경변수를 반복해서 같은 방식으로 실행할 때는 `docker compose` 가 더 적합하다.
 
 ## 13. GitHub SSH 키 생성 및 SSH 원격 전환
 
