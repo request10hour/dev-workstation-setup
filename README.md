@@ -364,7 +364,7 @@ CONTAINER ID   IMAGE    COMMAND   CREATED              STATUS              PORTS
 
    ![ubuntu-lab 컨테이너 생성 확인](docs/assets/ubuntu-lab-container.png)
 
-   **[attach]**
+<p><strong>[attach]</strong></p>
 
 2. `docker attach ubuntu-lab`
    이미 실행 중인 컨테이너의 메인 `bash` 프로세스에 직접 붙는다. 프롬프트가 `root@6f421b957273:/#` 로 바뀌는 것은 "호스트 셸" 이 아니라 "컨테이너 안의 셸" 로 들어갔다는 뜻이다.
@@ -374,9 +374,8 @@ CONTAINER ID   IMAGE    COMMAND   CREATED              STATUS              PORTS
    `attach` 상태에서 파일을 직접 만들고, 곧바로 내용을 읽어 출력했다. `attach mode` 가 그대로 보이므로 컨테이너 안에서 파일 쓰기와 읽기가 정상 동작함을 확인할 수 있다.
 5. `Ctrl + P`, `Ctrl + Q` (동시에 누르는 것이 아니라, `Ctrl + P` 다음 `Ctrl + Q` 를 순서대로 입력한다)
    `exit` 하지 않고 연결만 끊는 분리(detach) 키다. 이 방식으로 나오면 메인 `bash` 프로세스가 계속 살아 있으므로 컨테이너도 유지된다.
-
-
-   **[exec]**
+<br>
+<p><strong>[exec]</strong></p>
 
 6. `docker exec -it ubuntu-lab bash`
    이미 실행 중인 같은 컨테이너 안에서 "새로운 셸 프로세스" 를 추가로 띄운다. 즉, 메인 프로세스에 직접 붙는 `attach` 와 달리, `exec` 는 별도 작업 창을 하나 더 여는 개념이다.
