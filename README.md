@@ -860,6 +860,12 @@ $ docker compose down
 - `curl -s http://localhost:8082` 는 실제 호스트 포트 접속 검증이다. 응답 HTML 안에 `Compose Bonus` 문구가 보여 단일 서비스 실행이 성공했음을 확인했다.
 - `docker compose down` 은 Compose가 만든 컨테이너와 네트워크를 정리한다.
 
+증거 이미지:
+
+![Compose 8082 브라우저 접속 증거](docs/assets/bonus-compose-browser-8082.png)
+
+![Compose 단일 서비스 운영 증거](docs/assets/bonus-compose-single-service.png)
+
 ### 12-3. 멀티 컨테이너 실행 및 서비스 디스커버리
 
 ```bash
@@ -894,6 +900,10 @@ $ docker compose down
 - `docker compose exec -T web printenv APP_MODE` 결과가 `dev` 이므로 `.env` 의 환경변수가 컨테이너 내부로 전달되었음을 확인했다.
 - `docker compose logs web helper` 는 웹 서비스 로그와 보조 서비스 로그를 함께 확인하는 운영 명령이다.
 - 마지막 `docker compose down` 으로 멀티 컨테이너 실습 환경을 다시 정리했다.
+
+증거 이미지:
+
+![Compose 멀티 컨테이너와 서비스 디스커버리 증거](docs/assets/bonus-compose-service-discovery.png)
 
 ### 12-4. 환경 변수 변경 검증
 
@@ -939,6 +949,12 @@ $ docker compose down
 - `curl -s http://localhost:8083` 결과가 정상 HTML 이므로 새 포트에서도 웹 접속이 가능함을 검증했다.
 - `docker compose exec -T web printenv APP_MODE` 결과가 `prod` 로 바뀌었으므로 환경변수 값이 `dev -> prod` 로 변경되었음을 확인했다.
 - 마지막 `docker compose down` 으로 보너스 실습용 컨테이너와 네트워크를 정리했다.
+
+증거 이미지:
+
+![Compose 8083 브라우저 접속 증거](docs/assets/bonus-compose-browser-8083.png)
+
+![Compose 환경 변수 변경 증거](docs/assets/bonus-compose-env-change.png)
 
 ### 12-5. 핵심 검증 결과
 
