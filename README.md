@@ -160,9 +160,6 @@ drwxr-xr-x  3 c10hour0574  c10hour0574   96 Apr  3 03:16 dir1
 - 상대 경로는 현재 위치를 기준으로 적는 방식이다. `cli-lab` 안에서 저장소의 웹 페이지 파일을 가리키는 상대 경로 예시는 `../../app/index.html` 이다.
 - 문서에 절대 경로와 상대 경로를 함께 적어 두면, 평가자가 현재 위치를 다르게 잡더라도 작업 과정을 더 쉽게 재현할 수 있다.
 
-전체 로그:
-- [terminal-basics.txt](docs/logs/terminal-basics.txt)
-
 ## 3. 권한 실습
 
 ```bash
@@ -222,9 +219,6 @@ drwxr-xr-x  2 c10hour0574  c10hour0574  64 Apr  3 03:18 perm_dir
 - `755 = rwx r-x r-x`
 - `644` 는 소유자는 읽기/쓰기, 그룹과 기타 사용자는 읽기만 가능하다는 뜻이다.
 - `755` 는 소유자는 읽기/쓰기/진입이 가능하고, 그룹과 기타 사용자는 읽기와 진입만 가능하다는 뜻이다.
-
-전체 로그:
-- [permissions.txt](docs/logs/permissions.txt)
 
 ## 4. Docker 설치 및 기본 점검
 
@@ -355,7 +349,7 @@ CONTAINER ID   IMAGE    COMMAND   CREATED              STATUS              PORTS
 6f421b957273   ubuntu   "bash"    Less than a minute   Up Less than a minute         ubuntu-lab
 ```
 
-설명:
+명령어 설명:
 
 1. `docker run -dit --name ubuntu-lab ubuntu bash`
    `ubuntu` 이미지를 기반으로 `bash` 를 메인 프로세스로 실행하는 컨테이너를 만든다. `-d` 는 백그라운드 실행, `-i` 는 표준입력 유지, `-t` 는 터미널 할당을 의미한다. 출력으로 나온 긴 문자열은 새 컨테이너 ID 다.
@@ -443,23 +437,18 @@ orbstack-web-lab
 7. `docker stop orbstack-web-lab`
    실행 중인 컨테이너를 정지한다. 이 명령은 컨테이너를 삭제하지 않고 실행만 멈추므로, 이후 다시 `docker ps -a` 를 보면 `Exited` 상태로 남아 있는 것을 확인할 수 있다.
 
-## 6. Dockerfile 기반 커스텀 이미지
+## 6. 웹 서버 소스 작성, Dockerfile 작성, 이미지 빌드, 포트 매핑 실행
 
-선택한 베이스:
+실행 로그:
+- [docker-web.txt](docs/logs/docker-web.txt)
 
-- 베이스 이미지: `nginx:1.29-alpine`
-- 선택 이유: 웹 서버 설정이 간단하고, 정적 파일 교체만으로 포트 매핑/바인드 마운트 검증을 빠르게 진행할 수 있다.
+```bash
+$ rg -n "<title>|<span class=\"eyebrow\">|<h1>" app/index.html
+5:    <title>AI/SW 개발 워크스테이션 구축</title>
+70:      <span class="eyebrow">Dockerfile + NGINX Demo</span>
+71:      <h1>Hello World</h1>
 
-내가 적용한 커스텀 포인트:
-
-- `LABEL`: 이미지 목적을 식별하기 쉽게 메타데이터 추가
-- `ENV APP_ENV=mission`: 환경값 예시 추가
-- `COPY app/ /usr/share/nginx/html/`: 기본 정적 파일을 내 콘텐츠로 교체
-- `.dockerignore`: 불필요한 문서/실습 디렉터리가 빌드 컨텍스트에 들어가지 않도록 정리
-
-`Dockerfile`:
-
-```dockerfile
+$ cat Dockerfile
 FROM nginx:1.29-alpine
 
 LABEL org.opencontainers.image.title="workstation-nginx-demo"
@@ -468,63 +457,84 @@ LABEL org.opencontainers.image.description="Static web server for the AI/SW work
 ENV APP_ENV=mission
 
 COPY app/ /usr/share/nginx/html/
-```
 
-빌드/실행 로그:
-- [docker-web.txt](docs/logs/docker-web.txt)
-
-핵심 명령:
-
-```bash
 $ docker build -t workstation-web:1.0 .
 ...
 #7 naming to docker.io/library/workstation-web:1.0
 
+$ docker images
+REPOSITORY        TAG           IMAGE ID       CREATED         SIZE
+workstation-web   1.0           df9a8c567528   8 seconds ago   62.2MB
+nginx             1.29-alpine   d5030d429039   8 days ago      62.2MB
+
 $ docker run -d --name mission-web -p 8088:80 workstation-web:1.0
 18fa2fd00cdc8a5d922cdd5f25b95ddd4545e5bebe05acccb00d27e39a5e5bdb
-```
-
-## 7. 포트 매핑 및 접속 증거
-
-포트 매핑이 필요한 이유:
-
-- 컨테이너 안의 `80` 포트는 컨테이너 네트워크 안에만 존재한다.
-- 브라우저나 `curl` 이 호스트(macOS)에서 접근하려면 `-p <host_port>:<container_port>` 로 통로를 열어야 한다.
-- 이번 실습에서는 `8088 -> 80`, `8089 -> 80` 두 방식으로 접근을 확인했다.
-
-호스트 포트가 이미 사용 중일 때 진단 순서:
-
-1. 에러 메시지에서 어떤 호스트 포트가 충돌했는지 먼저 확인한다. 예: `0.0.0.0:8088 bind: address already in use`
-2. `docker ps` 로 이미 같은 포트를 사용 중인 컨테이너가 있는지 확인한다.
-3. 컨테이너가 보이지 않으면 호스트 프로세스 점검으로 넘어간다. macOS에서는 `lsof -i :8088` 같은 명령으로 해당 포트를 점유한 프로세스를 찾는다.
-4. 점유 주체가 Docker 컨테이너인지, 다른 로컬 서버인지 구분한다.
-5. 같은 서비스의 기존 컨테이너라면 `docker stop`, `docker rm -f` 등으로 정리한다.
-6. 다른 프로그램이 쓰는 포트라면 그 프로그램을 종료하거나, 충돌하지 않는 새 호스트 포트로 바꿔 실행한다. 예: `-p 8090:80`
-7. 변경 후 `docker ps`, `curl http://localhost:<port>` 로 실제 연결 성공까지 다시 확인한다.
-
-즉, 진단 순서는 `에러 메시지 확인 -> Docker 점검 -> 호스트 프로세스 점검 -> 원인 구분 -> 포트 변경 또는 기존 점유 해제 -> 재검증` 이다.
-
-실행 로그:
-- [docker-web.txt](docs/logs/docker-web.txt)
-
-`curl` 검증:
-
-```bash
-$ curl -s http://localhost:8088 | grep -o "<title>AI/SW 개발 워크스테이션 구축</title>"
-<title>AI/SW 개발 워크스테이션 구축</title>
 
 $ docker ps
-18fa2fd00cdc   workstation-web:1.0   ...   0.0.0.0:8088->80/tcp   mission-web
-ad1112da544c   nginx:1.29-alpine     ...   0.0.0.0:8089->80/tcp   mission-bind
+CONTAINER ID   IMAGE                 COMMAND                  CREATED         STATUS                  PORTS                                     NAMES
+18fa2fd00cdc   workstation-web:1.0   "/docker-entrypoint.…"   7 seconds ago   Up 6 seconds            0.0.0.0:8088->80/tcp, [::]:8088->80/tcp   mission-web
+
+$ docker logs mission-web | sed -n '1,8p'
+/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+/docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+
+$ curl -s http://localhost:8088 | grep -o "<title>AI/SW 개발 워크스테이션 구축</title>"
+<title>AI/SW 개발 워크스테이션 구축</title>
 ```
 
-브라우저 접속 스크린샷:
+명령줄 설명:
+
+1. `rg -n "<title>|<span class=\"eyebrow\">|<h1>" app/index.html`
+   웹 서버가 내려줄 정적 HTML 안에 어떤 제목과 본문이 들어 있는지 핵심 줄만 먼저 확인한 명령이다. 출력으로 `<title>`, 강조 문구, `Hello World` 가 보이므로 이미지 안에 복사될 페이지 내용이 준비되어 있음을 알 수 있다.
+
+2. `cat Dockerfile`
+   커스텀 이미지 정의 파일을 그대로 확인한 명령이다. 출력에 `FROM`, `LABEL`, `ENV`, `COPY` 가 보이므로 어떤 베이스 이미지를 쓰고, 어떤 파일을 복사하며, 어떤 환경값을 넣는지 한눈에 검토할 수 있다.
+
+3. `docker build -t workstation-web:1.0 .`
+   현재 디렉터리의 `Dockerfile` 과 build context를 이용해 커스텀 이미지를 빌드하는 명령이다. 마지막 출력에 `naming to docker.io/library/workstation-web:1.0` 이 보이므로 새 이미지 태그가 정상적으로 만들어졌다는 뜻이다.
+
+4. `docker images`
+   빌드가 끝난 뒤 로컬 이미지 목록을 다시 확인하는 명령이다. 출력에 `workstation-web   1.0` 이 보이면 방금 만든 이미지가 로컬에 저장된 상태임을 뜻한다.
+
+5. `docker run -d --name mission-web -p 8088:80 workstation-web:1.0`
+   방금 만든 이미지를 컨테이너로 실행하는 명령이다. `-d` 는 백그라운드 실행, `--name` 은 컨테이너 이름 지정, `-p 8088:80` 은 호스트 8088 포트를 컨테이너 80 포트에 연결하는 설정이다. 출력된 긴 문자열은 새 컨테이너 ID 다.
+
+6. `docker ps`
+   현재 실행 중인 컨테이너를 확인하는 명령이다. 출력에 `mission-web` 이 `Up` 상태로 보이고 `0.0.0.0:8088->80/tcp` 가 함께 보이므로, 포트 매핑까지 포함해 정상 실행 중이라는 뜻이다.
+
+7. `docker logs mission-web | sed -n '1,8p'`
+   컨테이너 시작 로그를 확인한 명령이다. NGINX entrypoint 초기화 메시지가 보이므로 웹 서버 프로세스가 실제로 기동되었다는 근거가 된다.
+
+8. `curl -s http://localhost:8088 | grep -o "<title>AI/SW 개발 워크스테이션 구축</title>"`
+   호스트 브라우저 대신 터미널에서 포트 매핑 응답을 검증한 명령이다. 출력에 `<title>AI/SW 개발 워크스테이션 구축</title>` 가 보이므로, 호스트 `8088` 포트가 컨테이너 웹 서버와 정상 연결되었음을 확인할 수 있다.
+
+베이스 이미지:
+
+- `nginx:1.29-alpine`
+
+커스텀 포인트:
+
+- `LABEL` 추가
+- `ENV APP_ENV=mission`
+- 정적 파일 `COPY`
+
+왜 이렇게 했는지:
+
+- 빠르게 웹 서버를 띄우기 쉽다.
+- 포트 매핑 검증이 쉽다.
+- 정적 파일 교체가 단순하다.
+
+브라우저 접속 증거:
 
 ![포트 8088 접속](docs/assets/port-8088.png)
 
-![포트 8089 바인드 마운트 접속](docs/assets/port-8089-bind.png)
-
-## 8. 바인드 마운트 반영 검증
+## 7. 바인드 마운트 반영 검증
 
 실행 로그:
 - [docker-web.txt](docs/logs/docker-web.txt)
@@ -553,7 +563,7 @@ $ curl -s http://localhost:8089 | grep -F "Bind Mount Updated"
 - 그래서 호스트 파일을 수정하면 이미 실행 중인 컨테이너도 새 파일 내용을 즉시 읽는다.
 - 개발 중 "코드를 고치고 바로 반영 보기" 에 특히 유용하다.
 
-## 9. Docker 볼륨 영속성 검증
+## 8. Docker 볼륨 영속성 검증
 
 실행 로그:
 - [docker-volume.txt](docs/logs/docker-volume.txt)
@@ -583,7 +593,7 @@ persisted-from-volume
 - 컨테이너를 삭제해도 볼륨은 남기 때문에, 다시 연결했을 때 파일이 유지된다.
 - 데이터베이스, 업로드 파일, 캐시처럼 "지워지면 안 되는 데이터" 에 적합하다.
 
-## 10. 운영 명령 검증
+## 9. 운영 명령 검증
 
 실행 로그:
 - [docker-basics.txt](docs/logs/docker-basics.txt)
@@ -615,7 +625,7 @@ CONTAINER ID   NAME          CPU %   MEM USAGE / LIMIT
 18fa2fd00cdc   mission-web   0.00%   6.191MiB / 15.67GiB
 ```
 
-## 11. Git / GitHub / VSCode 연동
+## 10. Git / GitHub / VSCode 연동
 
 현재 자동 확인 결과:
 
@@ -660,7 +670,7 @@ x64
 3. `main` 브랜치 push 완료
 4. 제출 저장소 링크 확인 완료
 
-## 12. 검증 방법 요약
+## 11. 검증 방법 요약
 
 - 시스템/버전 확인: [system-info.txt](docs/logs/system-info.txt)
 - 터미널 조작 로그: [terminal-basics.txt](docs/logs/terminal-basics.txt)
@@ -676,7 +686,7 @@ x64
 - 보너스 Compose 로그: [bonus-compose.txt](docs/logs/bonus-compose.txt)
 - 보너스 Compose 접속 캡처: [bonus-compose-8093.png](docs/assets/bonus-compose-8093.png)
 
-## 13. 트러블슈팅
+## 12. 트러블슈팅
 
 ### 사례 1. `zsh: no matches found` 로 빈 디렉터리 정리가 실패함
 
@@ -713,7 +723,7 @@ x64
 - 확인: 먼저 `docker ps` 로 기존 컨테이너 포트 사용 여부를 보고, 없으면 `lsof -i :<host_port>` 로 호스트 프로세스 점유 여부를 확인한다.
 - 해결: 기존 컨테이너를 중지/삭제하거나, 충돌하지 않는 새 호스트 포트로 바꿔 실행한다. 이후 `docker ps` 와 `curl http://localhost:<new_port>` 로 재검증한다.
 
-## 14. 핵심 개념 정리
+## 13. 핵심 개념 정리
 
 ### 기존 Dockerfile/이미지 기반 커스텀 이미지란?
 
@@ -760,7 +770,7 @@ x64
 - Git: 로컬에서 파일 변경 이력을 저장하고 브랜치/커밋을 관리하는 버전 관리 도구
 - GitHub: Git 저장소를 원격으로 공유하고 협업, 리뷰, 이슈, PR 을 진행하는 플랫폼
 
-## 15. 재현 절차
+## 14. 재현 절차
 
 ```bash
 # 1) 커스텀 이미지 빌드
@@ -784,13 +794,13 @@ docker run -d --name mission-volume-2 -v mission-data:/data ubuntu:24.04 sleep i
 docker exec mission-volume-2 bash -lc "cat /data/hello.txt"
 ```
 
-## 16. 제출 링크
+## 15. 제출 링크
 
 - GitHub Repository: `https://github.com/request10hour/dev-workstation-setup`
 - 기본 브랜치: `main`
 - 공개 여부: `public`
 
-## 17. 보너스 과제
+## 16. 보너스 과제
 
 보너스 과제는 메인 평가 항목과 분리해서 진행할 수 있도록 `bonus/compose/` 아래에 별도 구성으로 정리했다.
 
@@ -803,7 +813,7 @@ docker exec mission-volume-2 bash -lc "cat /data/hello.txt"
 - 실행 로그: [bonus-compose.txt](docs/logs/bonus-compose.txt)
 - 접속 캡처: [bonus-compose-8093.png](docs/assets/bonus-compose-8093.png)
 
-### 17-1. 보너스 체크리스트
+### 16-1. 보너스 체크리스트
 
 - [x] Docker Compose 단일 서비스 실행
 - [x] Docker Compose 멀티 컨테이너 실행
@@ -811,7 +821,7 @@ docker exec mission-volume-2 bash -lc "cat /data/hello.txt"
 - [x] 환경변수 파일로 호스트 포트/모드 분리
 - [ ] GitHub SSH 키 설정
 
-### 17-2. Docker Compose 기초: 단일 서비스
+### 16-2. Docker Compose 기초: 단일 서비스
 
 `web` 서비스는 기존 과제의 `Dockerfile` 을 그대로 재사용해 이미지를 빌드하고, Compose 전용 페이지인 `bonus/compose/site/` 를 읽기 전용으로 마운트한다. 호스트 포트는 `BONUS_WEB_PORT` 환경변수로 정한다.
 
@@ -825,7 +835,7 @@ $ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.en
 - 개별 `docker run ...` 명령을 길게 반복하는 대신, 실행 설정을 `compose.yaml` 안에 문서처럼 고정할 수 있다.
 - 그래서 "어떤 이미지로, 어떤 포트로, 어떤 서비스 이름으로 실행했는지" 가 저장소에 남는다.
 
-### 17-3. Docker Compose 멀티 컨테이너
+### 16-3. Docker Compose 멀티 컨테이너
 
 이번 보너스 구성은 아래 두 서비스로 이루어져 있다.
 
@@ -846,7 +856,7 @@ probe-1  | <title>AI/SW 개발 워크스테이션 구축</title>
 - `probe` 는 `localhost` 가 아니라 서비스 이름 `web` 으로 접근한다.
 - 이것이 Compose의 기본 네트워크와 서비스 디스커버리 개념이다.
 
-### 17-4. Compose 운영 명령어
+### 16-4. Compose 운영 명령어
 
 실행 로그:
 
@@ -861,7 +871,7 @@ $ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.en
 $ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env down
 ```
 
-### 17-5. 환경 변수 활용
+### 16-5. 환경 변수 활용
 
 `bonus/compose/bonus.env` 에서 아래 값을 분리했다.
 
@@ -877,7 +887,7 @@ APP_MODE=compose-bonus
 
 즉, 코드와 실행 설정을 분리해 두었기 때문에 포트나 모드를 바꿀 때 `compose.yaml` 본문을 직접 고치지 않아도 된다.
 
-### 17-6. 보너스 웹페이지 캡처
+### 16-6. 보너스 웹페이지 캡처
 
 Compose로 띄운 웹페이지는 `http://localhost:8093` 에서 확인했고, 제출용 캡처는 아래 파일로 남겼다.
 
@@ -889,7 +899,7 @@ Compose로 띄운 웹페이지는 `http://localhost:8093` 에서 확인했고, �
 
 이 템플릿은 실제 웹페이지 캡처 위에 주소 표시줄을 합성하는 용도로 사용했다.
 
-### 17-7. GitHub SSH 키 설정
+### 16-7. GitHub SSH 키 설정
 
 이 항목은 계정 보안과 직접 연결되므로 자동으로 수행하지 않고, 아래 절차만 별도 정리한다.
 
