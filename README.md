@@ -2,7 +2,7 @@
 
 2026-04-02 기준으로 macOS + OrbStack 환경에서 터미널, Docker, Git 기본 흐름을 직접 검증한 결과를 정리한 저장소입니다. 목표는 "내 컴퓨터에서만 되는 실행"이 아니라, 같은 명령으로 다시 만들 수 있는 개발 워크스테이션을 구성하는 것입니다.
 
-현재 저장소 기준으로 자동 수행 가능한 항목은 대부분 정리했습니다. `Git 사용자 정보 설정`은 완료했고, `VSCode GitHub 로그인 증거`도 첨부했습니다. 남은 항목은 최종 `원격 저장소 push` 확인입니다.
+현재 저장소 기준으로 요구사항에 해당하는 산출물과 검증 로그를 모두 정리했고, 원격 저장소 `main` 브랜치까지 push 완료했습니다.
 
 ## 1. 프로젝트 개요
 
@@ -88,7 +88,7 @@ git version 2.53.0
 - [x] Git 사용자 정보 설정
 - [x] Git 기본 브랜치 설정
 - [x] VSCode GitHub 로그인 증거 첨부
-- [ ] 원격 저장소에 push 후 제출 링크 최종 확인
+- [x] 원격 저장소에 push 후 제출 링크 최종 확인
 
 ## 5. 터미널 기본 조작
 
@@ -447,17 +447,12 @@ $ code --version
 x64
 ```
 
-다음 단계:
+최종 상태:
 
-1. 원격 저장소에 마지막 커밋을 push 한다.
-2. push 성공 후 제출 링크를 최종 확인한다.
-
-예시 명령:
-
-```bash
-git config --list --show-origin
-git push -u origin main
-```
+1. Git 사용자 정보 설정 완료
+2. VSCode GitHub 로그인 증거 첨부 완료
+3. `main` 브랜치 push 완료
+4. 제출 저장소 링크 확인 완료
 
 ## 15. 검증 방법 요약
 
@@ -541,18 +536,8 @@ docker run -d --name mission-volume-2 -v mission-data:/data ubuntu:24.04 sleep i
 docker exec mission-volume-2 bash -lc "cat /data/hello.txt"
 ```
 
-## 19. 남은 수동 완료 항목
+## 19. 제출 링크
 
-자동으로 확정할 수 없는 항목만 남아 있다.
-
-1. VSCode GitHub 로그인 완료
-2. 원격 저장소 push 확인
-3. 필요 시 추가 커밋 및 `git push origin main`
-
-VSCode 증거가 준비되면 다음 턴에서 아래를 이어서 마무리할 수 있다.
-
-```bash
-git add .
-git commit -m "docs: add VSCode GitHub evidence"
-git push origin main
-```
+- GitHub Repository: `https://github.com/request10hour/dev-workstation-setup`
+- 기본 브랜치: `main`
+- 공개 여부: `public`
