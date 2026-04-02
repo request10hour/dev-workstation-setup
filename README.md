@@ -322,10 +322,6 @@ Docker CLI 가 설치되어 있는지와 버전이 무엇인지 확인하는 명
 
 ## 5. 컨테이너 실행 실습
 
-전체 로그:
-- [docker-attach.txt](docs/logs/docker-attach.txt)
-- [orbstack-container-practice.txt](docs/logs/orbstack-container-practice.txt)
-
 ### 5-1. `ubuntu` 컨테이너로 `attach` / `exec` 차이를 직접 본다
 
 ```bash
@@ -373,7 +369,7 @@ CONTAINER ID   IMAGE    COMMAND   CREATED              STATUS              PORTS
    컨테이너 루트 디렉터리의 기본 폴더 목록을 본다. `bin`, `etc`, `tmp`, `usr` 같은 표준 리눅스 디렉터리가 보이면 Ubuntu 컨테이너 내부 파일시스템을 보고 있다는 뜻이다.
 4. `echo "attach mode" > /tmp/attach.txt` 와 `cat /tmp/attach.txt`
    `attach` 상태에서 파일을 직접 만들고, 곧바로 내용을 읽어 출력했다. `attach mode` 가 그대로 보이므로 컨테이너 안에서 파일 쓰기와 읽기가 정상 동작함을 확인할 수 있다.
-5. `Ctrl + P`, `Ctrl + Q`
+5. `Ctrl + P`, `Ctrl + Q` (동시에 누르는 것이 아니라, `Ctrl + P` 다음 `Ctrl + Q` 를 순서대로 입력한다)
    `exit` 하지 않고 연결만 끊는 분리(detach) 키다. 이 방식으로 나오면 메인 `bash` 프로세스가 계속 살아 있으므로 컨테이너도 유지된다.
 6. `docker exec -it ubuntu-lab bash`
    이미 실행 중인 같은 컨테이너 안에서 "새로운 셸 프로세스" 를 추가로 띄운다. 즉, 메인 프로세스에 직접 붙는 `attach` 와 달리, `exec` 는 별도 작업 창을 하나 더 여는 개념이다.
