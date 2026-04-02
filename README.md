@@ -443,24 +443,6 @@ orbstack-web-lab
 
 ## 6. 웹 서버 소스 작성, Dockerfile 작성, 이미지 빌드, 포트 매핑 실행
 
-실행 로그:
-- [docker-web.txt](docs/logs/docker-web.txt)
-
-`app/index.html` 핵심 구조:
-
-```html
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <title>Hello Web Server</title>
-</head>
-<body>
-  <h1>Hello Web Server</h1>
-</body>
-</html>
-```
-
 `Dockerfile`:
 
 ```dockerfile
@@ -477,6 +459,10 @@ COPY app/ /usr/share/nginx/html/
 명령줄 실행:
 
 ```bash
+$ mkdir -p app
+
+$ echo '<h1>Hello Web Server</h1>' > app/index.html
+
 $ docker build -t workstation-web:1.0 .
 ...
 #7 naming to docker.io/library/workstation-web:1.0
@@ -506,42 +492,6 @@ $ docker logs mission-web | sed -n '1,8p'
 $ curl -s http://localhost:8088 | grep -o "<title>Hello Web Server</title>"
 <title>Hello Web Server</title>
 ```
-
-명령줄 설명:
-
-1. `docker build -t workstation-web:1.0 .`
-   현재 디렉터리의 `Dockerfile` 과 build context를 이용해 커스텀 이미지를 빌드하는 명령이다. 마지막 출력에 `naming to docker.io/library/workstation-web:1.0` 이 보이므로 새 이미지 태그가 정상적으로 만들어졌다는 뜻이다.
-
-2. `docker images`
-   빌드가 끝난 뒤 로컬 이미지 목록을 다시 확인하는 명령이다. 출력에 `workstation-web   1.0` 이 보이면 방금 만든 이미지가 로컬에 저장된 상태임을 뜻한다.
-
-3. `docker run -d --name mission-web -p 8088:80 workstation-web:1.0`
-   방금 만든 이미지를 컨테이너로 실행하는 명령이다. `-d` 는 백그라운드 실행, `--name` 은 컨테이너 이름 지정, `-p 8088:80` 은 호스트 8088 포트를 컨테이너 80 포트에 연결하는 설정이다. 출력된 긴 문자열은 새 컨테이너 ID 다.
-
-4. `docker ps`
-   현재 실행 중인 컨테이너를 확인하는 명령이다. 출력에 `mission-web` 이 `Up` 상태로 보이고 `0.0.0.0:8088->80/tcp` 가 함께 보이므로, 포트 매핑까지 포함해 정상 실행 중이라는 뜻이다.
-
-5. `docker logs mission-web | sed -n '1,8p'`
-   컨테이너 시작 로그를 확인한 명령이다. NGINX entrypoint 초기화 메시지가 보이므로 웹 서버 프로세스가 실제로 기동되었다는 근거가 된다.
-
-6. `curl -s http://localhost:8088 | grep -o "<title>Hello Web Server</title>"`
-   호스트 브라우저 대신 터미널에서 포트 매핑 응답을 검증한 명령이다. 출력에 `<title>Hello Web Server</title>` 가 보이므로, 호스트 `8088` 포트가 컨테이너 웹 서버와 정상 연결되었음을 확인할 수 있다.
-
-베이스 이미지:
-
-- `nginx:1.29-alpine`
-
-커스텀 포인트:
-
-- `LABEL` 추가
-- `ENV APP_ENV=mission`
-- 정적 파일 `COPY`
-
-왜 이렇게 했는지:
-
-- 빠르게 웹 서버를 띄우기 쉽다.
-- 포트 매핑 검증이 쉽다.
-- 정적 파일 교체가 단순하다.
 
 브라우저 접속 증거:
 
