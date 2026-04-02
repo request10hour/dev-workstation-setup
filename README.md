@@ -1,67 +1,6 @@
 # AI/SW 개발 워크스테이션 구축
 
-2026-04-02 기준으로 macOS + OrbStack 환경에서 터미널, Docker, Git 기본 흐름을 직접 검증한 결과를 정리한 저장소입니다. 목표는 "내 컴퓨터에서만 되는 실행"이 아니라, 같은 명령으로 다시 만들 수 있는 개발 워크스테이션을 구성하는 것입니다.
-
-현재 저장소 기준으로 요구사항에 해당하는 산출물과 검증 로그를 모두 정리했고, 원격 저장소 `main` 브랜치까지 push 완료했습니다.
-
-## 1. 프로젝트 개요
-
-- 터미널 기본 조작과 파일 권한 실습을 통해 CLI 기반 작업 흐름을 익힌다.
-- OrbStack 기반 Docker 엔진이 정상 동작하는지 점검하고, 이미지/컨테이너 운영 명령을 확인한다.
-- `nginx:1.29-alpine` 기반 커스텀 이미지를 빌드해 정적 웹 서버를 띄운다.
-- 포트 매핑, 바인드 마운트, Docker 볼륨 영속성을 실제 로그와 접속 결과로 검증한다.
-- Git과 GitHub/VSCode 연동 위치를 구분하고, 수동 확인이 필요한 항목을 분리한다.
-
-## 2. 저장소 구조
-
-```text
-.
-├── bonus/
-│   └── compose/
-│       ├── bonus.env
-│       ├── browser-frame.html
-│       ├── compose.yaml
-│       └── site/
-│           └── index.html
-├── Dockerfile
-├── .dockerignore
-├── app/
-│   └── index.html
-├── docs/
-│   ├── assets/
-│   │   ├── bonus-compose-8093.png
-│   │   ├── port-8088.png
-│   │   ├── port-8089-bind.png
-│   │   └── vscode-github-login.png
-│   └── logs/
-│       ├── bonus-compose.txt
-│       ├── docker-attach.txt
-│       ├── docker-basics.txt
-│       ├── orbstack-container-practice.txt
-│       ├── docker-volume.txt
-│       ├── docker-web.txt
-│       ├── git-config.txt
-│       ├── github-visibility.txt
-│       ├── permissions.txt
-│       ├── system-info.txt
-│       └── terminal-basics.txt
-└── practice/
-    ├── permissions/
-    └── terminal/
-```
-
-구성 기준:
-
-- `app/`: 실제 서비스 소스만 모아 두는 영역이다. 컨테이너 이미지에 복사되는 대상이므로 실행 결과와 직접 연결되는 파일만 둔다.
-- `bonus/`: 선택 과제를 메인 요구사항과 분리한 영역이다. Compose, 환경변수, 캡처 재생성용 파일처럼 "추가 실습" 에만 필요한 파일을 따로 모았다.
-- `docs/logs/`: 평가 근거가 되는 명령 출력 로그를 보관한다. README에서 링크로 바로 접근할 수 있도록 증거 파일을 한곳에 모았다.
-- `docs/assets/`: 브라우저 접속 화면, VSCode 연동 화면처럼 이미지 증거를 보관한다. 로그와 스크린샷을 분리해 가독성을 높였다.
-- `practice/`: 터미널 조작과 권한 실습에 사용한 재현용 작업 공간이다. 실제 서비스 파일과 분리해 실습 과정이 서비스 결과물에 섞이지 않도록 했다.
-- 루트(`Dockerfile`, `README.md`): 평가자가 저장소를 열었을 때 바로 보아야 하는 핵심 진입점만 루트에 두었다. 즉, "실행 정의 파일" 과 "설명 문서" 를 최상단에 배치한 구조다.
-
-정리하면, 이 구조는 `실행 대상(app)`, `증거(docs)`, `실습 흔적(practice)`, `진입점(root)` 을 분리하는 기준으로 설계했다.
-
-## 3. 실행 환경
+## 1. 실행 환경
 
 - OS: macOS 15.7.4
 - Terminal Session: `non-interactive-cli` (`tty` unavailable, `TERM=dumb`)
@@ -110,7 +49,7 @@ git version 2.53.0
 - 다른 PC에서는 같은 저장소를 clone 한 뒤 자신의 작업 경로로 바꿔 읽으면 된다.
 - 경로를 문서화할 때는 절대 경로 예시와 함께 `$PWD`, 상대 경로를 병기하면 재현성이 좋아진다.
 
-## 4. 수행 체크리스트
+## 2. 수행 체크리스트
 
 - [x] 터미널 기본 조작 및 디렉터리 구성
 - [x] 파일 1개, 디렉터리 1개 권한 변경 실습
@@ -128,7 +67,7 @@ git version 2.53.0
 - [x] VSCode GitHub 로그인 증거 첨부
 - [x] 원격 저장소에 push 후 제출 링크 최종 확인
 
-## 5. 터미널 기본 조작
+## 3. 터미널 기본 조작
 
 전체 로그:
 - [terminal-basics.txt](docs/logs/terminal-basics.txt)
@@ -168,7 +107,7 @@ $ rm -rf workspace-a
 - 상대 경로는 현재 위치를 기준으로 적는 방식이다. 저장소 루트에서 같은 파일은 `app/index.html` 이다.
 - 과제 재현 문서에서는 평가자가 어느 위치에서 시작하는지 알 수 없기 때문에, 중요한 안내는 절대 경로와 상대 경로를 함께 적는 것이 안전하다.
 
-## 6. 권한 실습
+## 4. 권한 실습
 
 전체 로그:
 - [permissions.txt](docs/logs/permissions.txt)
@@ -202,7 +141,7 @@ $ chmod 755 scripts-dir
 - `755` 는 `7(rwx) / 5(r-x) / 5(r-x)` 이므로, 디렉터리는 소유자만 쓰기 가능하고 나머지는 읽기/진입만 가능하다.
 - `644` 는 `6(rw-) / 4(r--) / 4(r--)` 이므로, 일반 파일은 소유자만 수정하고 나머지는 읽기만 가능하다.
 
-## 7. Docker 설치 및 기본 점검
+## 5. Docker 설치 및 기본 점검
 
 전체 로그:
 - [docker-basics.txt](docs/logs/docker-basics.txt)
@@ -230,13 +169,13 @@ Server:
 - Docker CLI 는 macOS 터미널에서 실행되지만, 실제 컨테이너 엔진은 OrbStack 내부 Linux 환경에서 동작한다.
 - 그래서 호스트 OS 는 macOS, `docker info` 의 서버 OS 는 `OrbStack/Linux` 로 보이는 것이 정상이다.
 
-## 8. 컨테이너 실행 실습
+## 6. 컨테이너 실행 실습
 
 전체 로그:
 - [docker-basics.txt](docs/logs/docker-basics.txt)
 - [docker-attach.txt](docs/logs/docker-attach.txt)
 
-### 8-1. `hello-world`
+### 6-1. `hello-world`
 
 ```bash
 $ docker run --name mission-hello hello-world
@@ -244,7 +183,7 @@ Hello from Docker!
 This message shows that your installation appears to be working correctly.
 ```
 
-### 8-2. `ubuntu` 컨테이너 진입 대신 `exec` 로 내부 명령 실행
+### 6-2. `ubuntu` 컨테이너 진입 대신 `exec` 로 내부 명령 실행
 
 ```bash
 $ docker run -dit --name mission-ubuntu ubuntu:24.04 bash
@@ -261,7 +200,7 @@ media
 hello-from-ubuntu
 ```
 
-### 8-3. `attach` 와 `exec` 차이 관찰
+### 6-3. `attach` 와 `exec` 차이 관찰
 
 ```bash
 $ docker attach mission-attach
@@ -287,7 +226,7 @@ ca7456c0e62b   ubuntu:24.04   "bash"   Up ...
 - `attach` 는 컨테이너의 메인 프로세스에 직접 붙는다. 메인 `bash` 에서 `exit` 하면 컨테이너도 종료된다.
 - `exec` 는 실행 중인 컨테이너 안에 새 프로세스를 추가로 띄운다. `exec` 로 실행한 셸을 종료해도 메인 프로세스가 살아 있으면 컨테이너는 계속 실행된다.
 
-### 8-4. OrbStack 추가 실습: `컨테이너 0개` 상태에서 새 컨테이너 만들기
+### 6-4. OrbStack 추가 실습: `컨테이너 0개` 상태에서 새 컨테이너 만들기
 
 실행 로그:
 - [orbstack-container-practice.txt](docs/logs/orbstack-container-practice.txt)
@@ -332,7 +271,7 @@ orbstack-web-lab
 - `docker stop` 은 실행만 멈추는 명령이라서, 컨테이너는 삭제되지 않고 `Exited` 상태로 남는다.
 - 즉, 이번 실습은 `이미지 -> 컨테이너 생성 -> 컨테이너 실행 -> 컨테이너 중지` 흐름을 OrbStack UI 기준으로 설명할 수 있게 해 준다.
 
-## 9. Dockerfile 기반 커스텀 이미지
+## 7. Dockerfile 기반 커스텀 이미지
 
 선택한 베이스:
 
@@ -373,7 +312,7 @@ $ docker run -d --name mission-web -p 8088:80 workstation-web:1.0
 18fa2fd00cdc8a5d922cdd5f25b95ddd4545e5bebe05acccb00d27e39a5e5bdb
 ```
 
-## 10. 포트 매핑 및 접속 증거
+## 8. 포트 매핑 및 접속 증거
 
 포트 매핑이 필요한 이유:
 
@@ -413,7 +352,7 @@ ad1112da544c   nginx:1.29-alpine     ...   0.0.0.0:8089->80/tcp   mission-bind
 
 ![포트 8089 바인드 마운트 접속](docs/assets/port-8089-bind.png)
 
-## 11. 바인드 마운트 반영 검증
+## 9. 바인드 마운트 반영 검증
 
 실행 로그:
 - [docker-web.txt](docs/logs/docker-web.txt)
@@ -442,7 +381,7 @@ $ curl -s http://localhost:8089 | grep -F "Bind Mount Updated"
 - 그래서 호스트 파일을 수정하면 이미 실행 중인 컨테이너도 새 파일 내용을 즉시 읽는다.
 - 개발 중 "코드를 고치고 바로 반영 보기" 에 특히 유용하다.
 
-## 12. Docker 볼륨 영속성 검증
+## 10. Docker 볼륨 영속성 검증
 
 실행 로그:
 - [docker-volume.txt](docs/logs/docker-volume.txt)
@@ -472,7 +411,7 @@ persisted-from-volume
 - 컨테이너를 삭제해도 볼륨은 남기 때문에, 다시 연결했을 때 파일이 유지된다.
 - 데이터베이스, 업로드 파일, 캐시처럼 "지워지면 안 되는 데이터" 에 적합하다.
 
-## 13. 운영 명령 검증
+## 11. 운영 명령 검증
 
 실행 로그:
 - [docker-basics.txt](docs/logs/docker-basics.txt)
@@ -504,7 +443,7 @@ CONTAINER ID   NAME          CPU %   MEM USAGE / LIMIT
 18fa2fd00cdc   mission-web   0.00%   6.191MiB / 15.67GiB
 ```
 
-## 14. Git / GitHub / VSCode 연동
+## 12. Git / GitHub / VSCode 연동
 
 현재 자동 확인 결과:
 
@@ -549,7 +488,7 @@ x64
 3. `main` 브랜치 push 완료
 4. 제출 저장소 링크 확인 완료
 
-## 15. 검증 방법 요약
+## 13. 검증 방법 요약
 
 - 시스템/버전 확인: [system-info.txt](docs/logs/system-info.txt)
 - 터미널 조작 로그: [terminal-basics.txt](docs/logs/terminal-basics.txt)
@@ -565,7 +504,7 @@ x64
 - 보너스 Compose 로그: [bonus-compose.txt](docs/logs/bonus-compose.txt)
 - 보너스 Compose 접속 캡처: [bonus-compose-8093.png](docs/assets/bonus-compose-8093.png)
 
-## 16. 트러블슈팅
+## 14. 트러블슈팅
 
 ### 사례 1. `zsh: no matches found` 로 빈 디렉터리 정리가 실패함
 
@@ -602,7 +541,7 @@ x64
 - 확인: 먼저 `docker ps` 로 기존 컨테이너 포트 사용 여부를 보고, 없으면 `lsof -i :<host_port>` 로 호스트 프로세스 점유 여부를 확인한다.
 - 해결: 기존 컨테이너를 중지/삭제하거나, 충돌하지 않는 새 호스트 포트로 바꿔 실행한다. 이후 `docker ps` 와 `curl http://localhost:<new_port>` 로 재검증한다.
 
-## 17. 핵심 개념 정리
+## 15. 핵심 개념 정리
 
 ### 기존 Dockerfile/이미지 기반 커스텀 이미지란?
 
@@ -649,7 +588,7 @@ x64
 - Git: 로컬에서 파일 변경 이력을 저장하고 브랜치/커밋을 관리하는 버전 관리 도구
 - GitHub: Git 저장소를 원격으로 공유하고 협업, 리뷰, 이슈, PR 을 진행하는 플랫폼
 
-## 18. 재현 절차
+## 16. 재현 절차
 
 ```bash
 # 1) 커스텀 이미지 빌드
@@ -673,13 +612,13 @@ docker run -d --name mission-volume-2 -v mission-data:/data ubuntu:24.04 sleep i
 docker exec mission-volume-2 bash -lc "cat /data/hello.txt"
 ```
 
-## 19. 제출 링크
+## 17. 제출 링크
 
 - GitHub Repository: `https://github.com/request10hour/dev-workstation-setup`
 - 기본 브랜치: `main`
 - 공개 여부: `public`
 
-## 20. 보너스 과제
+## 18. 보너스 과제
 
 보너스 과제는 메인 평가 항목과 분리해서 진행할 수 있도록 `bonus/compose/` 아래에 별도 구성으로 정리했다.
 
@@ -692,7 +631,7 @@ docker exec mission-volume-2 bash -lc "cat /data/hello.txt"
 - 실행 로그: [bonus-compose.txt](docs/logs/bonus-compose.txt)
 - 접속 캡처: [bonus-compose-8093.png](docs/assets/bonus-compose-8093.png)
 
-### 20-1. 보너스 체크리스트
+### 18-1. 보너스 체크리스트
 
 - [x] Docker Compose 단일 서비스 실행
 - [x] Docker Compose 멀티 컨테이너 실행
@@ -700,7 +639,7 @@ docker exec mission-volume-2 bash -lc "cat /data/hello.txt"
 - [x] 환경변수 파일로 호스트 포트/모드 분리
 - [ ] GitHub SSH 키 설정
 
-### 20-2. Docker Compose 기초: 단일 서비스
+### 18-2. Docker Compose 기초: 단일 서비스
 
 `web` 서비스는 기존 과제의 `Dockerfile` 을 그대로 재사용해 이미지를 빌드하고, Compose 전용 페이지인 `bonus/compose/site/` 를 읽기 전용으로 마운트한다. 호스트 포트는 `BONUS_WEB_PORT` 환경변수로 정한다.
 
@@ -714,7 +653,7 @@ $ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.en
 - 개별 `docker run ...` 명령을 길게 반복하는 대신, 실행 설정을 `compose.yaml` 안에 문서처럼 고정할 수 있다.
 - 그래서 "어떤 이미지로, 어떤 포트로, 어떤 서비스 이름으로 실행했는지" 가 저장소에 남는다.
 
-### 20-3. Docker Compose 멀티 컨테이너
+### 18-3. Docker Compose 멀티 컨테이너
 
 이번 보너스 구성은 아래 두 서비스로 이루어져 있다.
 
@@ -735,7 +674,7 @@ probe-1  | <title>AI/SW 개발 워크스테이션 구축</title>
 - `probe` 는 `localhost` 가 아니라 서비스 이름 `web` 으로 접근한다.
 - 이것이 Compose의 기본 네트워크와 서비스 디스커버리 개념이다.
 
-### 20-4. Compose 운영 명령어
+### 18-4. Compose 운영 명령어
 
 실행 로그:
 
@@ -750,7 +689,7 @@ $ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.en
 $ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env down
 ```
 
-### 20-5. 환경 변수 활용
+### 18-5. 환경 변수 활용
 
 `bonus/compose/bonus.env` 에서 아래 값을 분리했다.
 
@@ -766,7 +705,7 @@ APP_MODE=compose-bonus
 
 즉, 코드와 실행 설정을 분리해 두었기 때문에 포트나 모드를 바꿀 때 `compose.yaml` 본문을 직접 고치지 않아도 된다.
 
-### 20-6. 보너스 웹페이지 캡처
+### 18-6. 보너스 웹페이지 캡처
 
 Compose로 띄운 웹페이지는 `http://localhost:8093` 에서 확인했고, 제출용 캡처는 아래 파일로 남겼다.
 
@@ -778,7 +717,7 @@ Compose로 띄운 웹페이지는 `http://localhost:8093` 에서 확인했고, �
 
 이 템플릿은 실제 웹페이지 캡처 위에 주소 표시줄을 합성하는 용도로 사용했다.
 
-### 20-7. GitHub SSH 키 설정
+### 18-7. GitHub SSH 키 설정
 
 이 항목은 계정 보안과 직접 연결되므로 자동으로 수행하지 않고, 아래 절차만 별도 정리한다.
 
