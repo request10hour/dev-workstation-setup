@@ -528,11 +528,6 @@ $ curl -s http://localhost:8088 | grep -o "<h1>Hello Web Server</h1>"
 
 ## 7. 바인드 마운트 반영 검증
 
-실행 로그:
-- [bind-mount.txt](docs/logs/bind-mount.txt)
-
-명령줄 실행:
-
 ```bash
 $ mkdir -p bind-site
 
@@ -601,9 +596,6 @@ $ curl -s http://localhost:8081
 ![바인드 마운트 수정 후](docs/assets/bind-mount-8081-v2.png)
 
 ## 8. Docker 볼륨 영속성 검증
-
-실행 로그:
-- [docker-volume.txt](docs/logs/docker-volume.txt)
 
 생성 명령:
 
@@ -674,34 +666,50 @@ flowchart TD
 ## 9. 운영 명령 검증
 
 실행 로그:
-- [docker-basics.txt](docs/logs/docker-basics.txt)
-- [docker-web.txt](docs/logs/docker-web.txt)
+- [docker-operations.txt](docs/logs/docker-operations.txt)
+
+위에서 만든 이미지와 컨테이너를 기준으로, 운영 단계에서 자주 쓰는 명령을 다시 확인했다.
 
 사용한 운영 명령:
 
 ```bash
 $ docker images
 REPOSITORY        TAG           IMAGE ID       SIZE
-workstation-web   1.0           df9a8c567528   62.2MB
+workstation-web   1.0           032726192584   62.2MB
+workstation-web   compose       0a44ae70aadc   62.2MB
 nginx             1.29-alpine   d5030d429039   62.2MB
+nginx             alpine        d5030d429039   62.2MB
 hello-world       latest        e2ac70e7319a   10.1kB
 ubuntu            24.04         f794f40ddfff   78.1MB
+busybox           1.36          b116e1550744   4.42MB
 
 $ docker ps -a
-CONTAINER ID   IMAGE                 STATUS
-01432fa817a9   ubuntu:24.04          Up ...
-ad1112da544c   nginx:1.29-alpine     Up ...
-18fa2fd00cdc   workstation-web:1.0   Up ...
-00b33fc23a41   ubuntu:24.04          Exited ...
-487cf27e590a   hello-world           Exited ...
+CONTAINER ID   IMAGE                 STATUS                   PORTS                                     NAMES
+92a168ef588a   ubuntu                Up ...                                                             vol-test2
+c41532c37591   workstation-web:1.0   Up ...                  0.0.0.0:8088->80/tcp, [::]:8088->80/tcp   mission-web
+1f6c5574cdf6   nginx:alpine          Up ...                  0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   bind-web
+c2b38a808a53   nginx:1.29-alpine     Up ...                  0.0.0.0:8089->80/tcp, [::]:8089->80/tcp   mission-bind
+6f421b957273   ubuntu                Up ...                                                             ubuntu-lab
+a7411076a93a   df9a8c567528          Exited ...                                                        orbstack-web-lab
 
-$ docker logs mission-web
-192.168.215.1 - - [02/Apr/2026:10:37:28 +0000] "GET / HTTP/1.1" 200 ...
+$ docker logs mission-web | tail -n 5
+/docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+192.168.215.1 - - [02/Apr/2026:19:41:44 +0000] "GET / HTTP/1.1" 200 26 "-" "curl/8.7.1" "-"
 
 $ docker stats --no-stream mission-web
-CONTAINER ID   NAME          CPU %   MEM USAGE / LIMIT
-18fa2fd00cdc   mission-web   0.00%   6.191MiB / 15.67GiB
+CONTAINER ID   NAME          CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O         PIDS
+c41532c37591   mission-web   0.00%     4.945MiB / 15.67GiB   0.03%     1.84kB / 810B   10.2MB / 8.19kB   7
 ```
+
+의미 정리:
+
+- `docker images` 로 지금까지 실습에 사용한 커스텀 이미지, 베이스 이미지, 보너스용 이미지가 로컬에 남아 있는지 다시 확인했다.
+- `docker ps -a` 로 웹 서버, 바인드 마운트, 볼륨 실습, Ubuntu 실습, OrbStack 추가 실습 컨테이너까지 현재 상태를 한 번에 점검했다.
+- `docker logs mission-web | tail -n 5` 로 NGINX 초기화와 실제 HTTP 요청 로그를 확인해 웹 서버가 정상 응답하고 있음을 검증했다.
+- `docker stats --no-stream mission-web` 로 CPU, 메모리, 네트워크 I/O, 블록 I/O 를 한 번성으로 확인해 실행 중 컨테이너의 리소스 상태를 점검했다.
 
 ## 10. Git / GitHub / VSCode 연동
 
@@ -754,6 +762,7 @@ x64
 - 터미널 조작 로그: [terminal-basics.txt](docs/logs/terminal-basics.txt)
 - 권한 변경 로그: [permissions.txt](docs/logs/permissions.txt)
 - Docker 설치/기본 운영: [docker-basics.txt](docs/logs/docker-basics.txt)
+- 운영 명령 재검증: [docker-operations.txt](docs/logs/docker-operations.txt)
 - 커스텀 이미지/포트 매핑: [docker-web.txt](docs/logs/docker-web.txt)
 - 바인드 마운트: [bind-mount.txt](docs/logs/bind-mount.txt)
 - 볼륨 영속성: [docker-volume.txt](docs/logs/docker-volume.txt)
