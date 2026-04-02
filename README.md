@@ -768,13 +768,6 @@ Github 연동 증거:
 
 ## 12. 보너스 1. Docker Compose 기본 사용
 
-관련 파일:
-
-- [docker-compose.yml](./bonus/compose/docker-compose.yml)
-- [.env](./bonus/compose/.env)
-- [site/index.html](./bonus/compose/site/index.html)
-- [bonus-compose.txt](./docs/logs/bonus-compose.txt)
-
 핵심 메시지:
 
 - Compose 파일은 실행 설정을 문서화한다.
@@ -923,6 +916,6 @@ $ docker compose down
 - `exec web`: `APP_MODE=prod` 확인
 - `down`: 정리
 
-현재 저장소의 `.env` 는 다시 `WEB_PORT=8082`, `APP_MODE=dev` 상태로 복원해 두었다.
+![Compose 8083 브라우저, 통신, APP_MODE=prod 증거](./docs/assets/bonus-compose-browser-8083.png)
 
-![Compose 환경 변수 변경 증거](./docs/assets/bonus-compose-env-change.png)
+한 줄 요약: Docker Compose를 사용하면 웹 서비스 실행 설정을 파일로 관리하면서, `up / ps / logs / down` 운영 흐름과 서비스 간 통신, 환경변수 변경까지 같은 방식으로 반복 검증할 수 있다.
