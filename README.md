@@ -712,14 +712,47 @@ c41532c37591   mission-web   0.00%     4.945MiB / 15.67GiB   0.03%     1.84kB / 
 
 ## 10. Git / GitHub / VSCode 연동
 
-현재 자동 확인 결과:
+명령줄 실행:
 
-- 원격 저장소는 이미 연결되어 있다: `https://github.com/request10hour/dev-workstation-setup.git`
-- GitHub API 기준으로 저장소 visibility 는 `public` 이다.
-- VSCode CLI(`code`)는 설치되어 있다.
-- `git config --global user.name`, `user.email`, `init.defaultBranch` 값은 모두 설정했다.
-- `gh` CLI 는 설치되어 있지 않아서, GitHub 인증 여부는 VSCode 또는 브라우저 기준으로 확인해야 한다.
-- VSCode GitHub 로그인 및 저장소 연동 화면은 스크린샷으로 저장했다: [vscode-github-login.png](docs/assets/vscode-github-login.png)
+```bash
+$ git config --global user.name "request10hour"
+
+$ git config --global user.email "request10hour@gmail.com"
+
+$ git config --global init.defaultBranch main
+
+$ git config --list --show-origin
+
+$ code .
+
+# VSCode 안에서 GitHub 로그인 진행
+# VSCode 안에서 현재 저장소 열기 및 Source Control 연동 확인
+
+$ git remote -v
+
+$ git push -u origin main
+
+$ curl -s https://api.github.com/repos/request10hour/dev-workstation-setup | rg '"private"|"visibility"|"default_branch"'
+```
+
+명령줄 설명:
+
+1. `git config --global user.name "request10hour"`
+   Git 커밋 작성자 이름을 전역 설정하는 명령이다.
+2. `git config --global user.email "request10hour@gmail.com"`
+   Git 커밋 작성자 이메일을 전역 설정하는 명령이다.
+3. `git config --global init.defaultBranch main`
+   새 저장소 기본 브랜치 이름을 `main` 으로 맞추는 명령이다.
+4. `git config --list --show-origin`
+   실제로 어떤 설정 파일에서 값이 읽히는지까지 함께 확인하는 명령이다.
+5. `code .`
+   현재 저장소를 VSCode로 여는 명령이다. 이후 VSCode 안에서 GitHub 로그인과 저장소 연동을 진행할 수 있다.
+6. `git remote -v`
+   현재 연결된 원격 저장소 주소를 확인하는 명령이다.
+7. `git push -u origin main`
+   현재 브랜치를 원격 `origin/main` 에 업로드하고, 이후 기본 upstream 으로 연결하는 명령이다.
+8. `curl -s https://api.github.com/repos/request10hour/dev-workstation-setup | rg '"private"|"visibility"|"default_branch"'`
+   GitHub API 응답을 통해 저장소 공개 여부와 기본 브랜치를 다시 확인하는 명령이다.
 
 현재 로그:
 - [git-config.txt](docs/logs/git-config.txt)
