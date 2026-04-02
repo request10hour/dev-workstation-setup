@@ -770,6 +770,38 @@ Github 연동 증거:
 
 이 섹션에서는 `docker-compose.yml`을 사용하여 복잡한 컨테이너 관리 루틴을 선언적으로 구축하고 자동화하는 과정을 실증합니다.
 
+### 12-0. 실습 파일 준비
+
+실습을 위해 아래 세 개의 파일을 `bonus/compose` 디렉터리 내에 준비했습니다.
+
+`site/index.html` (웹 서버가 제공할 페이지)
+```html
+<h1>Compose Bonus</h1>
+```
+
+`.env` (초기 환경 변수)
+```env
+WEB_PORT=8082
+APP_MODE=dev
+```
+
+`docker-compose.yml` (문서화된 컨테이너 설정 파일)
+```yaml
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "${WEB_PORT}:80"
+    volumes:
+      - ./site:/usr/share/nginx/html:ro
+    environment:
+      APP_MODE: ${APP_MODE}
+
+  helper:
+    image: busybox:1.36
+    command: sh -c "while true; do echo helper-alive; sleep 30; done"
+```
+
 ### 12-1. Docker Compose 기초
 - **목표**: `docker-compose.yml`의 기본 구조를 학습하고, 단일 서비스를 Compose로 실행합니다.
 - **실행 및 검증**:
