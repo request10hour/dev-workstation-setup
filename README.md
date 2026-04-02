@@ -753,6 +753,10 @@ Github 연동 증거:
 - 배운 점:
   `<none>` 이미지는 대개 Docker가 고장났다는 뜻이 아니라, 반복 빌드 뒤에 남은 중간 이미지나 태그를 잃은 이미지인 경우가 많다. 따라서 무조건 다 지우기보다, 먼저 현재 사용하는 이미지와 컨테이너를 확인한 뒤 dangling image 만 골라 정리하는 것이 안전하다.
 
+정리 전/후 비교:
+
+![dangling image 정리 전후 비교](docs/assets/dangling-images-before-after.png)
+
 ### 11-2. `git push` 시 GitHub 인증이 없어 업로드가 실패함
 
 - 문제:
