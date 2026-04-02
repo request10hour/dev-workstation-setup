@@ -650,6 +650,27 @@ hi
 - `docker rm -f vol-test` 로 첫 컨테이너를 삭제했지만, 볼륨 `mydata` 자체는 삭제되지 않는다.
 - 두 번째 컨테이너 `vol-test2` 를 같은 볼륨에 다시 연결했을 때도 `cat /data/hello.txt` 결과가 `hi` 로 그대로 보였으므로, 데이터가 컨테이너가 아니라 볼륨에 남아 있었다는 것을 확인할 수 있다.
 
+Mermaid 다이어그램:
+
+```mermaid
+flowchart TD
+    A["docker volume create mydata"] --> B["명명된 볼륨 mydata 생성"]
+    B --> C["docker run -d --name vol-test -v mydata:/data ubuntu sleep infinity"]
+    C --> D["vol-test 컨테이너가 mydata를 /data에 마운트"]
+    D --> E["echo hi > /data/hello.txt"]
+    E --> F["볼륨 mydata 안에 hello.txt 저장"]
+
+    F --> G["docker rm -f vol-test"]
+    G --> H["vol-test 컨테이너는 삭제됨"]
+    F --> I["하지만 mydata 볼륨은 그대로 남음"]
+
+    I --> J["docker run -d --name vol-test2 -v mydata:/data ubuntu sleep infinity"]
+    J --> K["vol-test2가 같은 mydata를 다시 /data에 마운트"]
+    K --> L["cat /data/hello.txt"]
+    L --> M["hi 출력 확인"]
+    M --> N["결론: 데이터는 컨테이너가 아니라 볼륨에 저장되어 영속성이 유지됨"]
+```
+
 ## 9. 운영 명령 검증
 
 실행 로그:
