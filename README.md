@@ -605,30 +605,50 @@ $ curl -s http://localhost:8081
 실행 로그:
 - [docker-volume.txt](docs/logs/docker-volume.txt)
 
-검증 절차:
+생성 명령:
 
 ```bash
-$ docker volume create mission-data
-mission-data
+$ docker volume create mydata
+mydata
 
-$ docker run -d --name mission-volume-1 -v mission-data:/data ubuntu:24.04 sleep infinity
-
-$ docker exec mission-volume-1 bash -lc "echo persisted-from-volume > /data/hello.txt && cat /data/hello.txt"
-persisted-from-volume
-
-$ docker rm -f mission-volume-1
-
-$ docker run -d --name mission-volume-2 -v mission-data:/data ubuntu:24.04 sleep infinity
-
-$ docker exec mission-volume-2 bash -lc "cat /data/hello.txt"
-persisted-from-volume
+$ docker volume ls
+DRIVER    VOLUME NAME
+local     mydata
 ```
 
-해석:
+첫 컨테이너에서 파일 생성:
 
-- 볼륨은 컨테이너 생명주기와 분리된 Docker 관리 스토리지다.
-- 컨테이너를 삭제해도 볼륨은 남기 때문에, 다시 연결했을 때 파일이 유지된다.
-- 데이터베이스, 업로드 파일, 캐시처럼 "지워지면 안 되는 데이터" 에 적합하다.
+```bash
+$ docker run -d --name vol-test -v mydata:/data ubuntu sleep infinity
+8ea9a5b79f9d14ff244563989239175e80a4d3c4d556f994ba7aa280d309ed06
+
+$ docker exec -it vol-test bash -lc 'echo hi > /data/hello.txt && cat /data/hello.txt'
+hi
+```
+
+컨테이너 삭제:
+
+```bash
+$ docker rm -f vol-test
+vol-test
+```
+
+새 컨테이너에서 같은 파일 확인:
+
+```bash
+$ docker run -d --name vol-test2 -v mydata:/data ubuntu sleep infinity
+92a168ef588aaf3ae23ccf4f81e4089837f07ccf267a5324616c8e127dec1c6f
+
+$ docker exec -it vol-test2 bash -lc 'cat /data/hello.txt'
+hi
+```
+
+의미 정리:
+
+- `docker volume create mydata` 는 컨테이너 밖에 남는 별도 저장공간을 만든다.
+- 첫 번째 컨테이너 `vol-test` 안에서 `/data/hello.txt` 를 만들고 `hi` 를 저장했다.
+- `docker rm -f vol-test` 로 첫 컨테이너를 삭제했지만, 볼륨 `mydata` 자체는 삭제되지 않는다.
+- 두 번째 컨테이너 `vol-test2` 를 같은 볼륨에 다시 연결했을 때도 `cat /data/hello.txt` 결과가 `hi` 로 그대로 보였으므로, 데이터가 컨테이너가 아니라 볼륨에 남아 있었다는 것을 확인할 수 있다.
 
 ## 9. 운영 명령 검증
 
@@ -785,7 +805,7 @@ x64
 
 - `workstation-web:1.0` 은 빌드된 이미지다.
 - `mission-web` 은 그 이미지를 실행한 컨테이너다.
-- `bind-web` 에서 보인 바인드 마운트 변경이나, `mission-volume-1` 에서 만든 파일은 "실행 중 컨테이너/외부 스토리지" 의 변화다.
+- `bind-web` 에서 보인 바인드 마운트 변경이나, `vol-test` 에서 만든 파일은 "실행 중 컨테이너/외부 스토리지" 의 변화다.
 - 정적 웹 페이지 자체를 기본값으로 영구 반영하고 싶다면 컨테이너 안을 수동 수정하는 것이 아니라 `web/index.html` 또는 `Dockerfile` 을 바꾸고 이미지를 다시 빌드해야 한다.
 
 쉽게 설명하면:
@@ -830,12 +850,12 @@ echo '<h1>Bind Mount Version 2</h1>' > bind-site/index.html
 curl http://localhost:8081
 
 # 4) 볼륨 영속성 확인
-docker volume create mission-data
-docker run -d --name mission-volume-1 -v mission-data:/data ubuntu:24.04 sleep infinity
-docker exec mission-volume-1 bash -lc "echo persisted-from-volume > /data/hello.txt"
-docker rm -f mission-volume-1
-docker run -d --name mission-volume-2 -v mission-data:/data ubuntu:24.04 sleep infinity
-docker exec mission-volume-2 bash -lc "cat /data/hello.txt"
+docker volume create mydata
+docker run -d --name vol-test -v mydata:/data ubuntu sleep infinity
+docker exec -it vol-test bash -lc 'echo hi > /data/hello.txt && cat /data/hello.txt'
+docker rm -f vol-test
+docker run -d --name vol-test2 -v mydata:/data ubuntu sleep infinity
+docker exec -it vol-test2 bash -lc 'cat /data/hello.txt'
 ```
 
 ## 15. 제출 링크

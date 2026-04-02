@@ -1,35 +1,19 @@
-+zsh:4> cd /Users/10hour0574/dev-workstation-setup
-+zsh:5> docker volume create mission-data
-mission-data
-+zsh:6> docker volume ls
+$ docker volume create mydata
+mydata
+
+$ docker volume ls
 DRIVER    VOLUME NAME
-local     mission-data
-+zsh:7> docker run -d --name mission-volume-1 -v mission-data:/data ubuntu:24.04 sleep infinity
-855e7a4950cdca6b8788b2e96885ad72a210666ef6b6a866c7d177d420234b1c
-+zsh:8> docker exec mission-volume-1 bash -lc 'echo persisted-from-volume > /data/hello.txt && cat /data/hello.txt'
-persisted-from-volume
-+zsh:9> docker volume inspect mission-data
-[
-    {
-        "CreatedAt": "2026-04-02T19:37:41+09:00",
-        "Driver": "local",
-        "Labels": null,
-        "Mountpoint": "/var/lib/docker/volumes/mission-data/_data",
-        "Name": "mission-data",
-        "Options": null,
-        "Scope": "local"
-    }
-]
-+zsh:10> docker rm -f mission-volume-1
-mission-volume-1
-+zsh:11> docker run -d --name mission-volume-2 -v mission-data:/data ubuntu:24.04 sleep infinity
-01432fa817a920858695ed08f3692b4c9611beaf4dbc6bd6173d247abd71a0b1
-+zsh:12> docker exec mission-volume-2 bash -lc 'cat /data/hello.txt'
-persisted-from-volume
-+zsh:13> docker ps -a
-CONTAINER ID   IMAGE                 COMMAND                  CREATED          STATUS                        PORTS                                     NAMES
-01432fa817a9   ubuntu:24.04          "sleep infinity"         1 second ago     Up Less than a second                                                   mission-volume-2
-ad1112da544c   nginx:1.29-alpine     "/docker-entrypoint.…"   8 seconds ago    Up 7 seconds                  0.0.0.0:8089->80/tcp, [::]:8089->80/tcp   mission-bind
-18fa2fd00cdc   workstation-web:1.0   "/docker-entrypoint.…"   14 seconds ago   Up 13 seconds                 0.0.0.0:8088->80/tcp, [::]:8088->80/tcp   mission-web
-00b33fc23a41   ubuntu:24.04          "bash"                   49 seconds ago   Exited (137) 37 seconds ago                                             mission-ubuntu
-487cf27e590a   hello-world           "/hello"                 55 seconds ago   Exited (0) 54 seconds ago                                               mission-hello
+local     mydata
+
+$ docker run -d --name vol-test -v mydata:/data ubuntu sleep infinity
+8ea9a5b79f9d14ff244563989239175e80a4d3c4d556f994ba7aa280d309ed06
+$ docker exec -it vol-test bash -lc 'echo hi > /data/hello.txt && cat /data/hello.txt'
+hi
+
+$ docker rm -f vol-test
+vol-test
+
+$ docker run -d --name vol-test2 -v mydata:/data ubuntu sleep infinity
+92a168ef588aaf3ae23ccf4f81e4089837f07ccf267a5324616c8e127dec1c6f
+$ docker exec -it vol-test2 bash -lc 'cat /data/hello.txt'
+hi
