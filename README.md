@@ -916,8 +916,6 @@ $ docker compose down
 - `exec web`: `APP_MODE=prod` 확인
 - `down`: 정리
 
-`APP_MODE=dev` 는 개발용 설정값, `APP_MODE=prod` 는 운영용 설정값이라는 의미로 사용했다. 이번 실습에서는 애플리케이션 동작을 복잡하게 나누기보다, `printenv APP_MODE` 출력이 `dev -> prod` 로 바뀌는지를 통해 환경변수 전달과 설정 분리를 확인했다.
-
 ![Compose 8083 브라우저, 통신, APP_MODE=prod 증거](./docs/assets/bonus-compose-browser-8083.png)
 
 요약: Docker Compose를 사용하면 웹 서비스 실행 설정과 운영 명령을 한 파일로 문서화해 재현성과 관리성을 높일 수 있고, `up / ps / logs / down` 운영 흐름과 서비스 간 통신, 환경변수 변경까지 같은 방식으로 반복 검증할 수 있다.
