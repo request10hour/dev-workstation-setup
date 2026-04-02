@@ -442,13 +442,27 @@ orbstack-web-lab
 실행 로그:
 - [docker-web.txt](docs/logs/docker-web.txt)
 
-```bash
-$ rg -n "<title>|<span class=\"eyebrow\">|<h1>" app/index.html
-5:    <title>AI/SW 개발 워크스테이션 구축</title>
-70:      <span class="eyebrow">Dockerfile + NGINX Demo</span>
-71:      <h1>Hello World</h1>
+`app/index.html` 핵심 구조:
 
-$ cat Dockerfile
+```html
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <title>Hello Web Server</title>
+  </head>
+  <body>
+    <main>
+      <span class="eyebrow">Dockerfile + NGINX Demo</span>
+      <h1>Hello World</h1>
+    </main>
+  </body>
+</html>
+```
+
+`Dockerfile`:
+
+```dockerfile
 FROM nginx:1.29-alpine
 
 LABEL org.opencontainers.image.title="workstation-nginx-demo"
@@ -457,7 +471,11 @@ LABEL org.opencontainers.image.description="Static web server for the AI/SW work
 ENV APP_ENV=mission
 
 COPY app/ /usr/share/nginx/html/
+```
 
+명령줄 실행:
+
+```bash
 $ docker build -t workstation-web:1.0 .
 ...
 #7 naming to docker.io/library/workstation-web:1.0
@@ -484,35 +502,29 @@ $ docker logs mission-web | sed -n '1,8p'
 /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
 /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
 
-$ curl -s http://localhost:8088 | grep -o "<title>AI/SW 개발 워크스테이션 구축</title>"
-<title>AI/SW 개발 워크스테이션 구축</title>
+$ curl -s http://localhost:8088 | grep -o "<title>Hello Web Server</title>"
+<title>Hello Web Server</title>
 ```
 
 명령줄 설명:
 
-1. `rg -n "<title>|<span class=\"eyebrow\">|<h1>" app/index.html`
-   웹 서버가 내려줄 정적 HTML 안에 어떤 제목과 본문이 들어 있는지 핵심 줄만 먼저 확인한 명령이다. 출력으로 `<title>`, 강조 문구, `Hello World` 가 보이므로 이미지 안에 복사될 페이지 내용이 준비되어 있음을 알 수 있다.
-
-2. `cat Dockerfile`
-   커스텀 이미지 정의 파일을 그대로 확인한 명령이다. 출력에 `FROM`, `LABEL`, `ENV`, `COPY` 가 보이므로 어떤 베이스 이미지를 쓰고, 어떤 파일을 복사하며, 어떤 환경값을 넣는지 한눈에 검토할 수 있다.
-
-3. `docker build -t workstation-web:1.0 .`
+1. `docker build -t workstation-web:1.0 .`
    현재 디렉터리의 `Dockerfile` 과 build context를 이용해 커스텀 이미지를 빌드하는 명령이다. 마지막 출력에 `naming to docker.io/library/workstation-web:1.0` 이 보이므로 새 이미지 태그가 정상적으로 만들어졌다는 뜻이다.
 
-4. `docker images`
+2. `docker images`
    빌드가 끝난 뒤 로컬 이미지 목록을 다시 확인하는 명령이다. 출력에 `workstation-web   1.0` 이 보이면 방금 만든 이미지가 로컬에 저장된 상태임을 뜻한다.
 
-5. `docker run -d --name mission-web -p 8088:80 workstation-web:1.0`
+3. `docker run -d --name mission-web -p 8088:80 workstation-web:1.0`
    방금 만든 이미지를 컨테이너로 실행하는 명령이다. `-d` 는 백그라운드 실행, `--name` 은 컨테이너 이름 지정, `-p 8088:80` 은 호스트 8088 포트를 컨테이너 80 포트에 연결하는 설정이다. 출력된 긴 문자열은 새 컨테이너 ID 다.
 
-6. `docker ps`
+4. `docker ps`
    현재 실행 중인 컨테이너를 확인하는 명령이다. 출력에 `mission-web` 이 `Up` 상태로 보이고 `0.0.0.0:8088->80/tcp` 가 함께 보이므로, 포트 매핑까지 포함해 정상 실행 중이라는 뜻이다.
 
-7. `docker logs mission-web | sed -n '1,8p'`
+5. `docker logs mission-web | sed -n '1,8p'`
    컨테이너 시작 로그를 확인한 명령이다. NGINX entrypoint 초기화 메시지가 보이므로 웹 서버 프로세스가 실제로 기동되었다는 근거가 된다.
 
-8. `curl -s http://localhost:8088 | grep -o "<title>AI/SW 개발 워크스테이션 구축</title>"`
-   호스트 브라우저 대신 터미널에서 포트 매핑 응답을 검증한 명령이다. 출력에 `<title>AI/SW 개발 워크스테이션 구축</title>` 가 보이므로, 호스트 `8088` 포트가 컨테이너 웹 서버와 정상 연결되었음을 확인할 수 있다.
+6. `curl -s http://localhost:8088 | grep -o "<title>Hello Web Server</title>"`
+   호스트 브라우저 대신 터미널에서 포트 매핑 응답을 검증한 명령이다. 출력에 `<title>Hello Web Server</title>` 가 보이므로, 호스트 `8088` 포트가 컨테이너 웹 서버와 정상 연결되었음을 확인할 수 있다.
 
 베이스 이미지:
 
