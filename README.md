@@ -921,3 +921,23 @@ $ docker compose down
 ![Compose 8083 브라우저, 통신, APP_MODE=prod 증거](./docs/assets/bonus-compose-browser-8083.png)
 
 한 줄 요약: Docker Compose를 사용하면 웹 서비스 실행 설정을 파일로 관리하면서, `up / ps / logs / down` 운영 흐름과 서비스 간 통신, 환경변수 변경까지 같은 방식으로 반복 검증할 수 있다.
+
+## 13. GitHub SSH 키 설정 방법 안내
+
+이 항목은 실제 로그보다 설정 순서를 간단히 안내하는 용도로 정리한다.
+
+```bash
+$ eval "$(ssh-agent -s)"
+$ ssh-add ~/.ssh/id_ed25519
+$ cat ~/.ssh/id_ed25519.pub
+```
+
+진행 순서:
+
+1. `eval "$(ssh-agent -s)"` 로 SSH 에이전트를 시작한다.
+2. `ssh-add ~/.ssh/id_ed25519` 로 개인키를 에이전트에 등록한다.
+3. `cat ~/.ssh/id_ed25519.pub` 로 공개키 내용을 출력한다.
+4. GitHub 에서 `Settings -> SSH and GPG keys -> New SSH key` 로 이동한다.
+5. `Title` 을 입력한다.
+6. `cat ~/.ssh/id_ed25519.pub` 출력값을 붙여넣는다.
+7. 저장한다.
