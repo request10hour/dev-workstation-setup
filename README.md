@@ -395,17 +395,6 @@ CONTAINER ID   IMAGE    COMMAND   CREATED              STATUS              PORTS
 
 ### 5-2. OrbStack 추가 실습: `컨테이너 0개` 상태에서 새 컨테이너 만들기
 
-실행 로그:
-- [orbstack-container-practice.txt](docs/logs/orbstack-container-practice.txt)
-
-상황 설명:
-
-- 2026-04-03 기준 OrbStack UI 에서는 `Images` 탭에 `hello-world`, `nginx`, `ubuntu`, `workstation-web:1.0` 이미지가 남아 있었지만, `Containers` 탭은 비어 있었다.
-- 이는 이상이 아니라 정상 상태다. 이미지와 컨테이너는 서로 다른 자원이기 때문에, 이미지를 pull/build 해 둔 상태에서도 컨테이너가 하나도 없을 수 있다.
-- 이 상태를 기준으로, 기존 커스텀 이미지 `workstation-web:1.0` 에서 새 컨테이너를 직접 생성해 보았다.
-
-핵심 명령:
-
 ```bash
 $ docker ps -a
 CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
@@ -431,12 +420,28 @@ $ docker stop orbstack-web-lab
 orbstack-web-lab
 ```
 
-해석:
+명령어 설명:
 
-- `docker create` 는 이미지를 바탕으로 "컨테이너 객체" 를 만들지만 바로 실행하지는 않는다. 그래서 OrbStack `Containers` 탭에 새 항목이 생기고 상태는 `Created` 로 보인다.
-- `docker start` 를 실행하면 방금 만든 컨테이너가 실제 프로세스를 띄우며 실행 상태가 된다.
-- `docker stop` 은 실행만 멈추는 명령이라서, 컨테이너는 삭제되지 않고 `Exited` 상태로 남는다.
-- 즉, 이번 실습은 `이미지 -> 컨테이너 생성 -> 컨테이너 실행 -> 컨테이너 중지` 흐름을 OrbStack UI 기준으로 설명할 수 있게 해 준다.
+1. `docker ps -a`
+   종료된 컨테이너까지 포함한 전체 목록을 확인하는 명령이다. 출력이 비어 있으므로, 이 시점에는 OrbStack `Containers` 탭 기준으로도 생성된 컨테이너가 없었다는 뜻이다.
+
+2. `docker create --name orbstack-web-lab -p 8092:80 workstation-web:1.0`
+   `workstation-web:1.0` 이미지를 바탕으로 새 컨테이너를 만든다. 여기서 `--name` 은 컨테이너 이름, `-p 8092:80` 은 호스트 8092 포트를 컨테이너 80 포트에 연결하는 설정이다. 출력으로 나온 긴 문자열은 새 컨테이너 ID 다.
+
+3. `docker ps -a --filter name=orbstack-web-lab`
+   방금 만든 컨테이너만 필터링해서 다시 확인한다. 상태가 `Created` 로 보이므로, 컨테이너 객체는 만들어졌지만 아직 실행 전이라는 뜻이다.
+
+4. `docker start orbstack-web-lab`
+   `Created` 상태의 컨테이너를 실제로 실행한다. 출력이 컨테이너 이름 `orbstack-web-lab` 로 나오면 시작 명령이 정상 처리된 것이다.
+
+5. `docker ps --filter name=orbstack-web-lab`
+   현재 실행 중인 컨테이너만 확인한다. 출력에 `Up` 이 보이고 `0.0.0.0:8092->80/tcp` 포트 매핑이 함께 보이므로, 컨테이너가 실행 중이며 호스트 8092 포트로 접근할 수 있다는 뜻이다.
+
+6. `curl -s http://localhost:8092 | grep -o "<title>AI/SW 개발 워크스테이션 구축</title>"`
+   브라우저 대신 터미널에서 웹 응답을 검증하는 명령이다. 출력으로 `<title>AI/SW 개발 워크스테이션 구축</title>` 가 보이면, `orbstack-web-lab` 컨테이너의 NGINX 페이지가 정상 응답하고 있다는 뜻이다.
+
+7. `docker stop orbstack-web-lab`
+   실행 중인 컨테이너를 정지한다. 이 명령은 컨테이너를 삭제하지 않고 실행만 멈추므로, 이후 다시 `docker ps -a` 를 보면 `Exited` 상태로 남아 있는 것을 확인할 수 있다.
 
 ## 6. Dockerfile 기반 커스텀 이미지
 
