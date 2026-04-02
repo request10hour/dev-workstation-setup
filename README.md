@@ -737,22 +737,21 @@ Github 연동 증거:
 
 ## 11. 트러블슈팅
 
-### 11-1. `docker attach` 입력이 `the input device is not a TTY` 로 실패함
+### 11-1. `docker images` 출력에 `<none>` 이미지가 많이 남아 현재 상태 판단이 복잡해짐
 
 - 문제:
-  `docker attach` 를 자동 입력이나 파이프 방식으로 붙이려 했을 때 `the input device is not a TTY` 오류가 발생했다. 즉, 컨테이너는 떠 있었지만 원하는 방식으로 셸에 진입하지 못했다.
+  `docker build` 를 여러 번 반복하면서 `docker images` 출력에 `<none>` 태그 이미지들이 많이 쌓였다. 이 상태에서는 지금 실제로 사용하는 이미지가 무엇인지 한눈에 구분하기 어려웠고, 운영 명령 검증 섹션에 어떤 이미지를 기준으로 적어야 할지도 헷갈렸다.
 - 원인 가설:
-  `docker attach` 는 실행 중인 컨테이너의 메인 프로세스 터미널에 직접 연결하는 명령이기 때문에, 일반 문자열 파이프나 비대화형 입력이 아니라 실제 TTY 환경을 요구했을 가능성이 있었다.
+  이미지를 다시 빌드할 때마다 이전 빌드 결과 일부가 태그를 잃은 상태로 남아 dangling image 가 되었을 가능성이 있었다. 즉 Docker 엔진 자체의 오류라기보다, 반복 빌드 과정에서 정리되지 않은 이미지 레이어가 누적된 상황이라고 판단했다.
 - 확인:
-  자동 입력 방식은 실패했지만, 실제 인터랙티브 터미널에서 `docker attach ubuntu-lab` 를 실행하자 프롬프트가 `root@6f421b957273:/#` 로 바뀌었다. 그 상태에서 `ls`, `echo "attach mode" > /tmp/attach.txt`, `cat /tmp/attach.txt` 가 정상 동작했고, 이후 `docker ps --filter name=ubuntu-lab` 결과에서도 컨테이너가 계속 `Up` 상태로 남아 있음을 확인했다.
+  `docker images` 를 다시 확인해 보니 `workstation-web:1.0`, `workstation-web:compose`, `nginx:alpine`, `hello-world`, `ubuntu` 같은 실제 사용 이미지 외에 `<none>` 으로 표시되는 항목이 여러 개 보였다. 이 때문에 현재 과제에서 진짜로 쓰는 이미지와 과거 빌드 흔적이 한 화면에 섞여 있었다.
 - 해결:
-  1. `docker run -dit --name ubuntu-lab ubuntu bash` 로 TTY가 연결된 Ubuntu 컨테이너를 먼저 실행했다.
-  2. 자동화된 파이프 입력 대신, 실제 터미널 세션에서 `docker attach ubuntu-lab` 를 실행해 메인 `bash` 프로세스에 직접 붙었다.
-  3. 컨테이너 안에서 필요한 확인 작업을 직접 수행했다.
-  4. 작업을 마친 뒤에는 `exit` 로 메인 셸을 끝내지 않고, `Ctrl + P` 다음 `Ctrl + Q` 를 순서대로 눌러 detach 했다. 이렇게 하면 메인 `bash` 프로세스가 계속 살아 있으므로 컨테이너도 종료되지 않는다.
-  5. 이후 추가 확인은 `docker exec -it ubuntu-lab bash` 로 들어가 수행했다. `exec` 는 실행 중인 컨테이너 안에 새 프로세스를 띄우는 방식이라, 단발성 확인 작업에는 더 안정적이었다.
+  1. 먼저 `docker ps -a` 와 `docker images` 로 지금 실제로 사용 중인 컨테이너와 이미지가 무엇인지 구분했다.
+  2. 그 다음 `<none>` 이미지들이 "현재 실행 중인 이미지" 가 아니라, 이전 빌드에서 남은 dangling image 라는 점을 기준으로 정리 대상을 판단했다.
+  3. 문서에는 실제 과제 흐름에 필요한 태그 이미지들만 남겨 읽기 쉽게 정리하고, 운영 명령 검증 섹션에서는 `workstation-web:1.0`, `nginx:alpine`, `hello-world`, `ubuntu`, `busybox` 처럼 의미 있는 이미지 위주로 다시 기술했다.
+  4. 필요하면 실무적으로는 `docker images -f "dangling=true"` 로 태그 없는 이미지들만 확인한 뒤 `docker image prune -f` 로 정리할 수 있다는 기준도 함께 정리했다.
 - 배운 점:
-  `attach` 는 메인 프로세스에 직접 붙는 명령이고, `exec` 는 실행 중인 컨테이너 안에 새 프로세스를 여는 명령이다. 그래서 메인 셸 자체를 관찰할 때는 `attach`, 추가 작업이나 재진입에는 `exec` 가 더 적합하다.
+  `<none>` 이미지는 대개 Docker가 고장났다는 뜻이 아니라, 반복 빌드 뒤에 남은 중간 이미지나 태그를 잃은 이미지인 경우가 많다. 따라서 무조건 다 지우기보다, 먼저 현재 사용하는 이미지와 컨테이너를 확인한 뒤 dangling image 만 골라 정리하는 것이 안전하다.
 
 ### 11-2. `git push` 시 GitHub 인증이 없어 업로드가 실패함
 
