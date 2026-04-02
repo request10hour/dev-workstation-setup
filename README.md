@@ -315,13 +315,10 @@ Docker CLI 가 설치되어 있는지와 버전이 무엇인지 확인하는 명
 종료된 컨테이너까지 포함한 전체 목록을 확인하는 명령이다. 이번 출력에서는 `orbstack-web-lab` 처럼 이미 생성되었다가 종료된 컨테이너도 함께 조회된다.
 
 6. `docker run --name hello-test hello-world`
-가장 기본적인 Docker 동작 검증 명령이다. `Hello from Docker!` 문구가 출력되면, Docker 클라이언트가 데몬과 통신하고, 이미지를 실행해 컨테이너를 정상적으로 생성했다는 뜻이다.
+가장 기본적인 Docker 동작 검증 명령이다. `Hello from Docker!` 문구가 출력되면, Docker 클라이언트가 데몬과 통신하고, 이미지를 실행해 컨테이너를 정상적으로 생성했다는 뜻이다. 이번 OrbStack 환경에서는 `hello-world` 이미지가 이미 로컬에 받아져 있던 상태로 확인되었다.
 
 7. `docker logs hello-test`
 이미 실행이 끝난 `hello-test` 컨테이너의 로그를 다시 확인하는 명령이다. 여기서도 같은 `Hello from Docker!` 문구가 보이므로, 컨테이너 출력이 정상적으로 저장되었음을 확인할 수 있다.
-
-전체 로그:
-- [docker-basics.txt](docs/logs/docker-basics.txt)
 
 ## 5. 컨테이너 실행 실습
 
