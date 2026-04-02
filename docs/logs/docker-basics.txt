@@ -1,7 +1,7 @@
-+zsh:4> cd /Users/10hour0574/dev-workstation-setup
-+zsh:5> docker --version
+$ docker --version
 Docker version 28.5.2, build ecc6942
-+zsh:6> docker info
+
+$ docker info
 Client:
  Version:    28.5.2
  Context:    orbstack
@@ -15,11 +15,11 @@ Client:
     Path:     /Users/10hour0574/.docker/cli-plugins/docker-compose
 
 Server:
- Containers: 0
+ Containers: 1
   Running: 0
   Paused: 0
-  Stopped: 0
- Images: 0
+  Stopped: 1
+ Images: 12
  Server Version: 28.5.2
  Storage Driver: overlay2
   Backing Filesystem: btrfs
@@ -38,7 +38,7 @@ Server:
   /etc/cdi
   /var/run/cdi
  Swarm: inactive
- Runtimes: io.containerd.runc.v2 runc
+ Runtimes: runc io.containerd.runc.v2
  Default Runtime: runc
  Init Binary: docker-init
  containerd version: 1c4457e00facac03ce1d75f7b6777a7a851e5c41
@@ -58,9 +58,9 @@ Server:
  ID: 4ed2fb9c-b251-485a-b005-c862d09e951c
  Docker Root Dir: /var/lib/docker
  Debug Mode: false
-  File Descriptors: 27
-  Goroutines: 52
-  System Time: 2026-04-02T19:36:43.595360861+09:00
+  File Descriptors: 28
+  Goroutines: 54
+  System Time: 2026-04-03T03:24:08.538027465+09:00
   EventsListeners: 1
  Experimental: false
  Insecure Registries:
@@ -101,15 +101,30 @@ Server:
    Base: 192.168.247.0/24, Size: 24
    Base: fd07:b51a:cc66:d000::/56, Size: 64
 
-WARNING: DOCKER_INSECURE_NO_IPTABLES_RAW is set
-+zsh:7> docker run --name mission-hello hello-world
-Unable to find image 'hello-world:latest' locally
-latest: Pulling from library/hello-world
-4f55086f7dd0: Pulling fs layer
-4f55086f7dd0: Download complete
-4f55086f7dd0: Pull complete
-Digest: sha256:452a468a4bf985040037cb6d5392410206e47db9bf5b7278d281f94d1c2d0931
-Status: Downloaded newer image for hello-world:latest
+
+$ docker images
+REPOSITORY        TAG           IMAGE ID       CREATED          SIZE
+workstation-web   1.0           a8c3b6ffd607   24 minutes ago   62.2MB
+workstation-web   compose       0a44ae70aadc   24 minutes ago   62.2MB
+<none>            <none>        50c15a40d11f   32 minutes ago   62.2MB
+<none>            <none>        d70e3a08b65f   32 minutes ago   62.2MB
+<none>            <none>        287128707c3d   48 minutes ago   62.2MB
+<none>            <none>        a01ac4356f89   48 minutes ago   62.2MB
+<none>            <none>        df9a8c567528   8 hours ago      62.2MB
+<none>            <none>        0486825c30e0   8 hours ago      62.2MB
+nginx             1.29-alpine   d5030d429039   8 days ago       62.2MB
+hello-world       latest        e2ac70e7319a   9 days ago       10.1kB
+ubuntu            24.04         f794f40ddfff   5 weeks ago      78.1MB
+busybox           1.36          b116e1550744   2 years ago      4.42MB
+
+$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+$ docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS                      PORTS     NAMES
+a7411076a93a   df9a8c567528   "/docker-entrypoint.…"   57 minutes ago   Exited (0) 57 minutes ago             orbstack-web-lab
+
+$ docker run --name hello-test hello-world
 
 Hello from Docker!
 This message shows that your installation appears to be working correctly.
@@ -132,16 +147,40 @@ Share images, automate workflows, and more with a free Docker ID:
 For more examples and ideas, visit:
  https://docs.docker.com/get-started/
 
-+zsh:8> docker run -dit --name mission-ubuntu ubuntu:24.04 bash
-Unable to find image 'ubuntu:24.04' locally
-24.04: Pulling from library/ubuntu
-817807f3c64e: Pulling fs layer
-817807f3c64e: Download complete
-817807f3c64e: Pull complete
-Digest: sha256:186072bba1b2f436cbb91ef2567abca677337cfc786c86e107d25b7072feef0c
-Status: Downloaded newer image for ubuntu:24.04
-00b33fc23a41b43dd04903852d5a99bdfa69a7f8141308e30f5b2a6c164a452d
-+zsh:9> docker exec mission-ubuntu bash -lc 'ls / | sed -n "1,8p"; echo hello-from-ubuntu'
+
+$ docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS                              PORTS     NAMES
+083c80c5c18d   hello-world    "/hello"                 1 second ago     Exited (0) Less than a second ago             hello-test
+a7411076a93a   df9a8c567528   "/docker-entrypoint.…"   57 minutes ago   Exited (0) 57 minutes ago                     orbstack-web-lab
+
+$ docker logs hello-test
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/get-started/
+
+
+$ docker run -dit --name mission-ubuntu ubuntu:24.04 bash
+f5dfecf2aa02a3c53ef38058958249b73c19a104c226c540438806d50ec82a88
+
+$ docker exec mission-ubuntu bash -lc "ls / | sed -n \"1,8p\"; echo hello-from-ubuntu"
 bin
 boot
 dev
@@ -151,16 +190,16 @@ lib
 lib64
 media
 hello-from-ubuntu
-+zsh:10> docker ps
-CONTAINER ID   IMAGE          COMMAND   CREATED        STATUS                  PORTS     NAMES
-00b33fc23a41   ubuntu:24.04   "bash"    1 second ago   Up Less than a second             mission-ubuntu
-+zsh:11> docker stop mission-ubuntu
+
+$ docker ps
+CONTAINER ID   IMAGE          COMMAND   CREATED                  STATUS                  PORTS     NAMES
+f5dfecf2aa02   ubuntu:24.04   "bash"    Less than a second ago   Up Less than a second             mission-ubuntu
+
+$ docker stop mission-ubuntu
 mission-ubuntu
-+zsh:12> docker ps -a
-CONTAINER ID   IMAGE          COMMAND    CREATED          STATUS                                PORTS     NAMES
-00b33fc23a41   ubuntu:24.04   "bash"     11 seconds ago   Exited (137) Less than a second ago             mission-ubuntu
-487cf27e590a   hello-world    "/hello"   17 seconds ago   Exited (0) 16 seconds ago                       mission-hello
-+zsh:13> docker images
-REPOSITORY    TAG       IMAGE ID       CREATED       SIZE
-hello-world   latest    e2ac70e7319a   9 days ago    10.1kB
-ubuntu        24.04     f794f40ddfff   5 weeks ago   78.1MB
+
+$ docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS                                PORTS     NAMES
+f5dfecf2aa02   ubuntu:24.04   "bash"                   11 seconds ago   Exited (137) Less than a second ago             mission-ubuntu
+083c80c5c18d   hello-world    "/hello"                 12 seconds ago   Exited (0) 11 seconds ago                       hello-test
+a7411076a93a   df9a8c567528   "/docker-entrypoint.…"   57 minutes ago   Exited (0) 57 minutes ago                       orbstack-web-lab

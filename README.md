@@ -228,11 +228,6 @@ drwxr-xr-x  2 c10hour0574  c10hour0574  64 Apr  3 03:18 perm_dir
 
 ## 4. Docker 설치 및 기본 점검
 
-전체 로그:
-- [docker-basics.txt](docs/logs/docker-basics.txt)
-
-핵심 확인:
-
 ```bash
 $ docker --version
 Docker version 28.5.2, build ecc6942
@@ -241,18 +236,88 @@ $ docker info
 Client:
  Version:    28.5.2
  Context:    orbstack
-...
+ Debug Mode: true
+ Plugins:
+  buildx: Docker Buildx (Docker Inc.)
+    Version:  v0.29.1
+  compose: Docker Compose (Docker Inc.)
+    Version:  v2.40.3
+
 Server:
+ Containers: 1
+  Running: 0
+  Paused: 0
+  Stopped: 1
+ Images: 12
  Server Version: 28.5.2
+ Storage Driver: overlay2
  Operating System: OrbStack
  OSType: linux
  Architecture: x86_64
+
+$ docker images
+REPOSITORY        TAG           IMAGE ID       CREATED          SIZE
+workstation-web   1.0           a8c3b6ffd607   24 minutes ago   62.2MB
+workstation-web   compose       0a44ae70aadc   24 minutes ago   62.2MB
+<none>            <none>        50c15a40d11f   32 minutes ago   62.2MB
+<none>            <none>        d70e3a08b65f   32 minutes ago   62.2MB
+<none>            <none>        287128707c3d   48 minutes ago   62.2MB
+<none>            <none>        a01ac4356f89   48 minutes ago   62.2MB
+<none>            <none>        df9a8c567528   8 hours ago      62.2MB
+<none>            <none>        0486825c30e0   8 hours ago      62.2MB
+nginx             1.29-alpine   d5030d429039   8 days ago       62.2MB
+hello-world       latest        e2ac70e7319a   9 days ago       10.1kB
+ubuntu            24.04         f794f40ddfff   5 weeks ago      78.1MB
+busybox           1.36          b116e1550744   2 years ago      4.42MB
+
+$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+$ docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS                      PORTS     NAMES
+a7411076a93a   df9a8c567528   "/docker-entrypoint.…"   57 minutes ago   Exited (0) 57 minutes ago             orbstack-web-lab
+
+$ docker run --name hello-test hello-world
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+$ docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS                              PORTS     NAMES
+083c80c5c18d   hello-world    "/hello"                 1 second ago     Exited (0) Less than a second ago             hello-test
+a7411076a93a   df9a8c567528   "/docker-entrypoint.…"   57 minutes ago   Exited (0) 57 minutes ago                     orbstack-web-lab
+
+$ docker logs hello-test
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
 ```
 
-의미 정리:
+명령어 설명:
 
-- Docker CLI 는 macOS 터미널에서 실행되지만, 실제 컨테이너 엔진은 OrbStack 내부 Linux 환경에서 동작한다.
-- 그래서 호스트 OS 는 macOS, `docker info` 의 서버 OS 는 `OrbStack/Linux` 로 보이는 것이 정상이다.
+1. `docker --version`
+Docker CLI 가 설치되어 있는지와 버전이 무엇인지 확인하는 명령이다. 출력값 `28.5.2` 는 현재 사용한 Docker 명령어 버전을 의미한다.
+
+2. `docker info`
+Docker 데몬이 실제로 동작 중인지 확인하는 명령이다. 이번 출력에서 `Context: orbstack`, `Operating System: OrbStack`, `OSType: linux` 가 보이므로, macOS 터미널에서 Docker CLI 를 쓰고 있지만 실제 엔진은 OrbStack 내부 Linux 환경에서 실행되고 있음을 알 수 있다.
+
+3. `docker images`
+현재 로컬에 저장된 이미지 목록을 확인하는 명령이다. 여기서 `hello-world`, `ubuntu:24.04`, `nginx:1.29-alpine`, `workstation-web` 이미지가 준비되어 있음을 확인할 수 있다.
+
+4. `docker ps`
+현재 실행 중인 컨테이너 목록을 확인하는 명령이다. 출력이 비어 있으므로 조회 시점에는 실행 중인 컨테이너가 없었다.
+
+5. `docker ps -a`
+종료된 컨테이너까지 포함한 전체 목록을 확인하는 명령이다. 이번 출력에서는 `orbstack-web-lab` 처럼 이미 생성되었다가 종료된 컨테이너도 함께 조회된다.
+
+6. `docker run --name hello-test hello-world`
+가장 기본적인 Docker 동작 검증 명령이다. `Hello from Docker!` 문구가 출력되면, Docker 클라이언트가 데몬과 통신하고, 이미지를 실행해 컨테이너를 정상적으로 생성했다는 뜻이다.
+
+7. `docker logs hello-test`
+이미 실행이 끝난 `hello-test` 컨테이너의 로그를 다시 확인하는 명령이다. 여기서도 같은 `Hello from Docker!` 문구가 보이므로, 컨테이너 출력이 정상적으로 저장되었음을 확인할 수 있다.
+
+전체 로그:
+- [docker-basics.txt](docs/logs/docker-basics.txt)
 
 ## 5. 컨테이너 실행 실습
 
@@ -260,15 +325,7 @@ Server:
 - [docker-basics.txt](docs/logs/docker-basics.txt)
 - [docker-attach.txt](docs/logs/docker-attach.txt)
 
-### 5-1. `hello-world`
-
-```bash
-$ docker run --name mission-hello hello-world
-Hello from Docker!
-This message shows that your installation appears to be working correctly.
-```
-
-### 5-2. `ubuntu` 컨테이너 진입 대신 `exec` 로 내부 명령 실행
+### 5-1. `ubuntu` 컨테이너 진입 대신 `exec` 로 내부 명령 실행
 
 ```bash
 $ docker run -dit --name mission-ubuntu ubuntu:24.04 bash
@@ -285,7 +342,7 @@ media
 hello-from-ubuntu
 ```
 
-### 5-3. `attach` 와 `exec` 차이 관찰
+### 5-2. `attach` 와 `exec` 차이 관찰
 
 ```bash
 $ docker attach mission-attach
@@ -311,7 +368,7 @@ ca7456c0e62b   ubuntu:24.04   "bash"   Up ...
 - `attach` 는 컨테이너의 메인 프로세스에 직접 붙는다. 메인 `bash` 에서 `exit` 하면 컨테이너도 종료된다.
 - `exec` 는 실행 중인 컨테이너 안에 새 프로세스를 추가로 띄운다. `exec` 로 실행한 셸을 종료해도 메인 프로세스가 살아 있으면 컨테이너는 계속 실행된다.
 
-### 5-4. OrbStack 추가 실습: `컨테이너 0개` 상태에서 새 컨테이너 만들기
+### 5-3. OrbStack 추가 실습: `컨테이너 0개` 상태에서 새 컨테이너 만들기
 
 실행 로그:
 - [orbstack-container-practice.txt](docs/logs/orbstack-container-practice.txt)
