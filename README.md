@@ -124,26 +124,27 @@ drwxr-xr-x  3 c10hour0574  c10hour0574   96 Apr  3 03:16 dir1
 
 명령어 설명:
 
-1. `cd /Users/10hour0574/dev-workstation-setup/practice`
-실습 시작 위치를 `practice` 디렉터리로 맞추는 명령이다. 이렇게 하면 서비스 파일과 실습 파일이 섞이지 않고, 과제용 조작 흔적을 별도 공간에 남길 수 있다.
-
-2. `pwd`, `ls -la`
-`pwd` 는 현재 위치를 절대 경로로 확인하는 명령이고, `ls -la` 는 숨김 파일까지 포함한 현재 디렉터리 목록을 보여 주는 명령이다. 실습 전후에 이 두 명령을 같이 쓰면 "지금 어디서 무엇을 보고 있는지" 를 명확히 기록할 수 있다.
-
-3. `mkdir cli-lab`, `cd cli-lab`
-새 실습 폴더를 만들고 그 안으로 들어가는 과정이다. 이번 실습용 작업 디렉터리는 `/Users/10hour0574/dev-workstation-setup/practice/cli-lab` 이다.
-
-4. `touch empty.txt`, `echo "hello terminal" > memo.txt`, `cat memo.txt`
-`touch` 는 빈 파일을 만들고, `echo ... > 파일명` 은 문자열을 파일에 저장한다. `cat memo.txt` 결과로 `hello terminal` 이 출력되었기 때문에 파일이 정상 생성되고 내용도 올바르게 들어갔음을 확인할 수 있다.
-
-5. `cp`, `mv`
-`cp memo.txt copy.txt` 는 파일 복사, `mv copy.txt renamed.txt` 는 파일 이름 변경이다. 이후 `mv renamed.txt dir1/` 는 파일 이동까지 수행한다. 즉 `mv` 는 이름 변경과 이동을 모두 담당하는 명령이다.
-
-6. `mkdir dir1`, `cp -r dir1 dir1_backup`
-`mkdir dir1` 은 디렉터리 생성이고, `cp -r` 는 디렉터리를 하위 파일까지 포함해 재귀적으로 복사하는 명령이다. 그래서 `dir1` 과 `dir1_backup` 이 동시에 생성된다.
-
-7. `rm empty.txt`, `rm -rf dir1_backup`
-`rm` 은 파일 삭제, `rm -rf` 는 디렉터리와 그 하위 내용을 강제로 함께 삭제할 때 사용한다. 마지막 `ls -la` 결과에서 `empty.txt` 와 `dir1_backup` 이 사라지고 `memo.txt`, `dir1/renamed.txt` 만 남아 있는 것을 확인할 수 있다.
+| 명령어 | 설명 | 결과/의미 |
+| --- | --- | --- |
+| `cd /Users/10hour0574/dev-workstation-setup/practice` | 실습 시작 위치를 `practice` 디렉터리로 이동하는 명령 | 과제용 실습 공간으로 진입 |
+| `pwd` | 현재 작업 디렉터리의 절대 경로를 확인하는 명령 | 현재 위치가 `/Users/10hour0574/dev-workstation-setup/practice` 임을 확인 |
+| `ls -la` | 숨김 파일을 포함한 현재 디렉터리 목록을 자세히 보는 명령 | `practice` 아래에 어떤 디렉터리가 있는지 확인 |
+| `mkdir cli-lab` | `cli-lab` 이라는 새 디렉터리를 생성하는 명령 | 실습용 새 폴더 생성 |
+| `cd cli-lab` | 방금 만든 `cli-lab` 디렉터리로 이동하는 명령 | 실습 폴더 내부로 진입 |
+| `pwd` | 현재 작업 디렉터리의 절대 경로를 다시 확인하는 명령 | 현재 위치가 `/Users/10hour0574/dev-workstation-setup/practice/cli-lab` 임을 확인 |
+| `ls -la` | 현재 디렉터리 안의 파일 목록을 확인하는 명령 | 새로 만든 폴더라서 비어 있는 상태임을 확인 |
+| `touch empty.txt` | 빈 파일 `empty.txt` 를 생성하는 명령 | 내용 없는 빈 파일 1개 생성 |
+| `echo "hello terminal" > memo.txt` | 문자열을 `memo.txt` 파일에 저장하는 명령 | `memo.txt` 파일 생성 및 내용 기록 |
+| `cat memo.txt` | 파일 내용을 터미널에 출력하는 명령 | `hello terminal` 이 출력되어 저장이 정상적으로 되었음을 확인 |
+| `cp memo.txt copy.txt` | `memo.txt` 를 `copy.txt` 라는 이름으로 복사하는 명령 | 파일 복사본 생성 |
+| `mv copy.txt renamed.txt` | `copy.txt` 의 이름을 `renamed.txt` 로 변경하는 명령 | 복사본 파일 이름 변경 |
+| `mkdir dir1` | `dir1` 디렉터리를 생성하는 명령 | 파일을 옮겨 넣을 폴더 생성 |
+| `mv renamed.txt dir1/` | `renamed.txt` 를 `dir1` 안으로 이동하는 명령 | 파일 이동 수행 |
+| `cp -r dir1 dir1_backup` | `dir1` 디렉터리를 하위 내용까지 포함하여 복사하는 명령 | `dir1_backup` 백업 디렉터리 생성 |
+| `ls -la` | 현재 디렉터리의 변경된 목록을 다시 확인하는 명령 | `dir1`, `dir1_backup`, `empty.txt`, `memo.txt` 가 생성된 상태를 확인 |
+| `rm empty.txt` | `empty.txt` 파일을 삭제하는 명령 | 불필요한 빈 파일 삭제 |
+| `rm -rf dir1_backup` | `dir1_backup` 디렉터리와 내부 내용을 강제로 삭제하는 명령 | 백업 디렉터리 전체 삭제 |
+| `ls -la` | 최종 상태를 확인하는 명령 | `dir1` 과 `memo.txt` 만 남아 있는 상태를 확인 |
 
 절대 경로와 상대 경로 설명:
 
