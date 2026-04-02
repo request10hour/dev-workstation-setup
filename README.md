@@ -299,7 +299,7 @@ This message shows that your installation appears to be working correctly.
 Docker CLI 가 설치되어 있는지와 버전이 무엇인지 확인하는 명령이다. 출력값 `28.5.2` 는 현재 사용한 Docker 명령어 버전을 의미한다.
 
 2. `docker info`
-Docker 데몬이 실제로 동작 중인지 확인하는 명령이다. 이번 출력에서 `Context: orbstack`, `Operating System: OrbStack`, `OSType: linux` 가 보이므로, macOS 터미널에서 Docker CLI 를 쓰고 있지만 실제 엔진은 OrbStack 내부 Linux 환경에서 실행되고 있음을 알 수 있다.
+1번 실행 환경에서 확인한 Docker 정보를 동일하게 다시 확인할 수 있는 명령이다.
 
 3. `docker images`
 현재 로컬에 저장된 이미지 목록을 확인하는 명령이다. 여기서 `hello-world`, `ubuntu:24.04`, `nginx:1.29-alpine`, `workstation-web` 이미지가 준비되어 있음을 확인할 수 있다.
