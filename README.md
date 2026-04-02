@@ -770,17 +770,40 @@ Github 연동 증거:
 
 관련 파일:
 
-- [bonus/compose/docker-compose.yml](/Users/10hour0574/dev-workstation-setup/bonus/compose/docker-compose.yml)
-- [bonus/compose/.env](/Users/10hour0574/dev-workstation-setup/bonus/compose/.env)
-- [bonus/compose/site/index.html](/Users/10hour0574/dev-workstation-setup/bonus/compose/site/index.html)
-- [docs/logs/bonus-compose.txt](/Users/10hour0574/dev-workstation-setup/docs/logs/bonus-compose.txt)
+- [docker-compose.yml](/Users/10hour0574/dev-workstation-setup/bonus/compose/docker-compose.yml)
+- [.env](/Users/10hour0574/dev-workstation-setup/bonus/compose/.env)
+- [index.html](/Users/10hour0574/dev-workstation-setup/bonus/compose/site/index.html)
+- [bonus-compose.txt](/Users/10hour0574/dev-workstation-setup/docs/logs/bonus-compose.txt)
 
 ### 12-1. 파일 준비
 
 ```bash
 $ cd /Users/10hour0574/dev-workstation-setup/bonus/compose
 
+$ mkdir -p site
+
 $ echo '<h1>Compose Bonus</h1>' > site/index.html
+
+$ cat > .env <<'EOF'
+WEB_PORT=8082
+APP_MODE=dev
+EOF
+
+$ cat > docker-compose.yml <<'EOF'
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "${WEB_PORT}:80"
+    volumes:
+      - ./site:/usr/share/nginx/html:ro
+    environment:
+      APP_MODE: ${APP_MODE}
+
+  helper:
+    image: busybox:1.36
+    command: sh -c "while true; do echo helper-alive; sleep 30; done"
+EOF
 ```
 
 `.env`
@@ -813,7 +836,7 @@ services:
 - `site/index.html` 은 바인드 마운트 예시처럼 `<h1>Compose Bonus</h1>` 한 줄만 가진 아주 단순한 웹 페이지로 만들었다.
 - `web` 서비스는 `nginx:alpine` 으로 이 정적 HTML 을 제공한다.
 - `helper` 서비스는 BusyBox 기반 보조 컨테이너로, Compose 기본 네트워크에서 `web` 이라는 서비스 이름으로 웹 서버에 접근하는 실험에 사용했다.
-- `.env` 파일의 `WEB_PORT`, `APP_MODE` 값은 Compose 보간에 사용된다. 즉 `${WEB_PORT}` 는 `ports` 항목에서 호스트 포트를 결정하는 값으로 치환되어 `8082:80`, `8083:80` 같은 매핑을 만들고, `${APP_MODE}` 는 `environment` 항목에서 컨테이너 내부 환경변수 `APP_MODE` 값으로 전달된다. 그래서 `.env` 파일을 바꾸고 `docker compose up -d` 를 다시 실행하면, 브라우저로 접속하는 포트와 `printenv APP_MODE` 로 확인하는 실행 모드가 함께 바뀌는 것을 검증할 수 있다.
+- `.env` 파일의 `WEB_PORT`, `APP_MODE` 값은 Compose 보간에 사용된다. 즉 `${WEB_PORT}` 는 `ports` 항목에서 호스트 포트를 결정하는 값으로 치환되어 `8082:80`, `8083:80` 같은 매핑을 만들고, `${APP_MODE}` 는 `environment` 항목을 통해 컨테이너 내부 환경변수 `APP_MODE` 값으로 전달된다. 그래서 `.env` 파일을 바꾸고 `docker compose up -d` 를 다시 실행하면, 브라우저로 접속하는 포트와 `printenv APP_MODE` 로 확인하는 실행 모드가 함께 바뀌는 것을 검증할 수 있다.
 
 ### 12-2. 단일 서비스 실행
 
@@ -925,6 +948,7 @@ $ docker compose down
 - `curl -s http://localhost:8083` 결과가 `<h1>Compose Bonus</h1>` 이므로 새 포트에서도 웹 접속이 가능함을 검증했다.
 - `docker compose exec -T web printenv APP_MODE` 결과가 `prod` 로 바뀌었으므로 환경변수 값이 `dev -> prod` 로 변경되었음을 확인했다.
 - 마지막 `docker compose down` 으로 보너스 실습용 컨테이너와 네트워크를 정리했다.
+- 제출 저장소의 현재 `.env` 파일은 다음 실습과 재현성을 위해 다시 `WEB_PORT=8082`, `APP_MODE=dev` 상태로 복원해 두었다.
 
 증거 이미지:
 
