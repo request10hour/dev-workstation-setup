@@ -881,6 +881,8 @@ $ docker compose down
 
 증거 이미지:
 
+![Compose 8082 브라우저, 통신, APP_MODE=dev 증거](docs/assets/bonus-compose-browser-8082-dev.png)
+
 ![Compose 멀티 컨테이너와 서비스 디스커버리 증거](docs/assets/bonus-compose-service-discovery.png)
 
 ### 12-4. 환경 변수 변경 검증
