@@ -858,13 +858,9 @@ $ docker compose down
 ```bash
 $ docker compose up -d
 
-$ docker compose ps
-NAME               IMAGE          COMMAND                  SERVICE   STATUS   PORTS
-compose-helper-1   busybox:1.36   "sh -c 'while true; …"   helper    Up
-compose-web-1      nginx:alpine   "/docker-entrypoint.…"   web       Up       0.0.0.0:8082->80/tcp
-
-$ docker compose exec -T helper wget -qO- http://web
+$ docker compose exec -T helper sh -lc 'wget -qO- http://web && echo helper-to-web-success'
 <h1>Compose Bonus</h1>
+helper-to-web-success
 
 $ docker compose exec -T web printenv APP_MODE
 dev
@@ -877,11 +873,10 @@ $ docker compose down
 명령줄 설명:
 
 - `docker compose up -d` 는 `web`, `helper` 두 서비스를 한 번에 실행한다.
-- `docker compose ps` 결과에서 `helper`, `web` 두 컨테이너가 모두 `Up` 상태인지 확인했다.
-- `docker compose exec -T helper wget -qO- http://web` 는 `helper` 컨테이너 내부에서 `web` 서비스 이름으로 HTTP 요청을 보내는 실험이다. 현재 CLI 환경은 TTY 가 없어서 `exec -T` 옵션으로 비대화형 실행을 사용했다.
-- `wget -qO- http://web` 결과로 `<h1>Compose Bonus</h1>` 가 출력되었으므로, Compose 기본 네트워크에서 서비스 이름 기반 통신이 가능함을 확인했다.
+- `docker compose exec -T helper sh -lc 'wget -qO- http://web && echo helper-to-web-success'` 는 `helper` 컨테이너 내부에서 `web` 서비스 이름으로 HTTP 요청을 보내고, 요청이 끝나면 성공 문구를 추가로 출력하는 실험이다. 현재 CLI 환경은 TTY 가 없어서 `exec -T` 옵션으로 비대화형 실행을 사용했다.
+- 이 명령의 결과로 `<h1>Compose Bonus</h1>` 와 `helper-to-web-success` 가 함께 출력되었으므로, `helper` 가 Compose 기본 네트워크를 통해 `web` 에 실제로 접근했음을 확인했다.
 - `docker compose exec -T web printenv APP_MODE` 결과가 `dev` 이므로 `.env` 의 환경변수가 컨테이너 내부로 전달되었음을 확인했다.
-- `docker compose logs web helper` 는 웹 서비스 로그와 보조 서비스 로그를 함께 확인하는 운영 명령이다.
+- `docker compose logs web helper` 에서 `web-1 ... "GET / HTTP/1.1" 200 ... "Wget"` 로그가 남았으므로, `helper` 의 `wget` 요청이 실제로 `web` 에 도달했다는 점을 두 번째로 확인할 수 있다.
 - 마지막 `docker compose down` 으로 멀티 컨테이너 실습 환경을 다시 정리했다.
 
 증거 이미지:
@@ -938,6 +933,6 @@ $ docker compose down
 ### 12-5. 핵심 검증 결과
 
 - `curl http://localhost:8082` 로 단일 서비스 실행 후 웹 응답을 확인했다.
-- `docker compose exec -T helper wget -qO- http://web` 로 멀티 컨테이너 상태에서 서비스 이름 기반 통신이 성공함을 확인했다.
+- `docker compose exec -T helper sh -lc 'wget -qO- http://web && echo helper-to-web-success'` 결과와 `web` 로그의 `Wget 200` 흔적으로, 멀티 컨테이너 상태에서 서비스 이름 기반 통신이 성공함을 확인했다.
 - `docker compose exec -T web printenv APP_MODE` 결과가 `dev` 에서 `prod` 로 바뀌는 것을 확인했다.
 - `docker compose up`, `docker compose ps`, `docker compose logs`, `docker compose down` 흐름을 실제 로그로 남겨 Compose 운영 명령을 검증했다.
