@@ -2,6 +2,44 @@
 
 ## 1. 실행 환경
 
+```bash
+$ pwd
+/Users/10hour0574/dev-workstation-setup
+
+$ uname -a
+Darwin c4r6s1.codyssey.kr 24.6.0 Darwin Kernel Version 24.6.0: Mon Jan 19 22:00:10 PST 2026; root:xnu-11417.140.69.708.3~1/RELEASE_X86_64 x86_64
+
+$ echo $SHELL
+/bin/zsh
+
+$ docker --version
+Docker version 28.5.2, build ecc6942
+
+$ docker info
+WARNING: DOCKER_INSECURE_NO_IPTABLES_RAW is set
+Client:
+ Version:    28.5.2
+ Context:    orbstack
+ Debug Mode: true
+ Plugins:
+  buildx: Docker Buildx (Docker Inc.)
+    Version:  v0.29.1
+  compose: Docker Compose (Docker Inc.)
+    Version:  v2.40.3
+
+Server:
+ Containers: 1
+  Running: 0
+  Paused: 0
+  Stopped: 1
+ Images: 12
+ Server Version: 28.5.2
+ Storage Driver: overlay2
+
+$ git --version
+git version 2.53.0
+```
+
 - OS: macOS 15.7.4
 - Terminal Session: `non-interactive-cli` (`tty` unavailable, `TERM=dumb`)
 - Shell: `/bin/zsh`
@@ -15,33 +53,6 @@
 - [docker-basics.txt](docs/logs/docker-basics.txt)
 - [git-config.txt](docs/logs/git-config.txt)
 - [github-visibility.txt](docs/logs/github-visibility.txt)
-
-핵심 확인:
-
-```bash
-$ sw_vers
-ProductName:        macOS
-ProductVersion:     15.7.4
-BuildVersion:       24G517
-
-$ echo "TERMINAL_SESSION=non-interactive-cli"
-TERMINAL_SESSION=non-interactive-cli
-
-$ tty
-not a tty
-
-$ echo $SHELL
-/bin/zsh
-
-$ echo $TERM
-dumb
-
-$ docker --version
-Docker version 28.5.2, build ecc6942
-
-$ git --version
-git version 2.53.0
-```
 
 재현성 주의사항:
 
