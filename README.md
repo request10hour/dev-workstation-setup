@@ -2,7 +2,7 @@
 
 2026-04-02 기준으로 macOS + OrbStack 환경에서 터미널, Docker, Git 기본 흐름을 직접 검증한 결과를 정리한 저장소입니다. 목표는 "내 컴퓨터에서만 되는 실행"이 아니라, 같은 명령으로 다시 만들 수 있는 개발 워크스테이션을 구성하는 것입니다.
 
-현재 저장소 기준으로 자동 수행 가능한 항목은 대부분 정리했습니다. `Git 사용자 정보 설정`과 `원격 저장소 push`는 완료했고, 남은 수동 항목은 `VSCode GitHub 로그인 증거 첨부`입니다.
+현재 저장소 기준으로 자동 수행 가능한 항목은 대부분 정리했습니다. `Git 사용자 정보 설정`은 완료했고, `VSCode GitHub 로그인 증거`도 첨부했습니다. 남은 항목은 최종 `원격 저장소 push` 확인입니다.
 
 ## 1. 프로젝트 개요
 
@@ -23,7 +23,8 @@
 ├── docs/
 │   ├── assets/
 │   │   ├── port-8088.png
-│   │   └── port-8089-bind.png
+│   │   ├── port-8089-bind.png
+│   │   └── vscode-github-login.png
 │   └── logs/
 │       ├── docker-attach.txt
 │       ├── docker-basics.txt
@@ -86,7 +87,7 @@ git version 2.53.0
 - [x] Docker 볼륨 영속성 검증
 - [x] Git 사용자 정보 설정
 - [x] Git 기본 브랜치 설정
-- [ ] VSCode GitHub 로그인 증거 첨부
+- [x] VSCode GitHub 로그인 증거 첨부
 - [ ] 원격 저장소에 push 후 제출 링크 최종 확인
 
 ## 5. 터미널 기본 조작
@@ -417,6 +418,7 @@ CONTAINER ID   NAME          CPU %   MEM USAGE / LIMIT
 - VSCode CLI(`code`)는 설치되어 있다.
 - `git config --global user.name`, `user.email`, `init.defaultBranch` 값은 모두 설정했다.
 - `gh` CLI 는 설치되어 있지 않아서, GitHub 인증 여부는 VSCode 또는 브라우저 기준으로 확인해야 한다.
+- VSCode GitHub 로그인 및 저장소 연동 화면은 스크린샷으로 저장했다: [vscode-github-login.png](docs/assets/vscode-github-login.png)
 
 현재 로그:
 - [git-config.txt](docs/logs/git-config.txt)
@@ -447,14 +449,14 @@ x64
 
 다음 단계:
 
-1. VSCode에서 GitHub 로그인 후 Source Control 패널에 저장소가 연결된 화면을 캡처한다.
-2. 민감정보가 보이지 않는지 확인한 뒤 README에 스크린샷을 추가한다.
-3. 필요하면 추가 커밋 후 다시 push 한다.
+1. 원격 저장소에 마지막 커밋을 push 한다.
+2. push 성공 후 제출 링크를 최종 확인한다.
 
 예시 명령:
 
 ```bash
 git config --list --show-origin
+git push -u origin main
 ```
 
 ## 15. 검증 방법 요약
@@ -468,6 +470,7 @@ git config --list --show-origin
 - `attach` vs `exec`: [docker-attach.txt](docs/logs/docker-attach.txt)
 - Git 상태 확인: [git-config.txt](docs/logs/git-config.txt)
 - GitHub 공개 저장소 확인: [github-visibility.txt](docs/logs/github-visibility.txt)
+- VSCode GitHub 로그인 증거: [vscode-github-login.png](docs/assets/vscode-github-login.png)
 
 ## 16. 트러블슈팅
 
@@ -543,7 +546,7 @@ docker exec mission-volume-2 bash -lc "cat /data/hello.txt"
 자동으로 확정할 수 없는 항목만 남아 있다.
 
 1. VSCode GitHub 로그인 완료
-2. VSCode 연동 화면 스크린샷 첨부
+2. 원격 저장소 push 확인
 3. 필요 시 추가 커밋 및 `git push origin main`
 
 VSCode 증거가 준비되면 다음 턴에서 아래를 이어서 마무리할 수 있다.
