@@ -157,7 +157,7 @@ drwxr-xr-x  3 c10hour0574  c10hour0574   96 Apr  3 03:16 dir1
 절대 경로와 상대 경로 설명:
 
 - 절대 경로는 루트(`/`)부터 전체 위치를 적는 방식이다. 이번 실습 디렉터리의 절대 경로 예시는 `/Users/10hour0574/dev-workstation-setup/practice/cli-lab` 이다.
-- 상대 경로는 현재 위치를 기준으로 적는 방식이다. `cli-lab` 안에서 저장소의 웹 페이지 파일을 가리키는 상대 경로 예시는 `../../app/index.html` 이다.
+- 상대 경로는 현재 위치를 기준으로 적는 방식이다. `cli-lab` 안에서 저장소의 웹 페이지 파일을 가리키는 상대 경로 예시는 `../../web/index.html` 이다.
 - 문서에 절대 경로와 상대 경로를 함께 적어 두면, 평가자가 현재 위치를 다르게 잡더라도 작업 과정을 더 쉽게 재현할 수 있다.
 
 ## 3. 권한 실습
@@ -446,38 +446,35 @@ orbstack-web-lab
 `Dockerfile`:
 
 ```dockerfile
-FROM nginx:1.29-alpine
-
-LABEL org.opencontainers.image.title="workstation-nginx-demo"
-LABEL org.opencontainers.image.description="Static web server for the AI/SW workstation mission"
-
-ENV APP_ENV=mission
-
-COPY app/ /usr/share/nginx/html/
+FROM nginx:alpine
+LABEL org.opencontainers.image.title="my-custom-nginx"
+ENV APP_ENV=dev
+COPY web/ /usr/share/nginx/html/
+EXPOSE 80
 ```
 
 명령줄 실행:
 
 ```bash
-$ mkdir -p app
+$ mkdir -p web
 
-$ echo '<h1>Hello Web Server</h1>' > app/index.html
+$ echo '<h1>Hello Web Server</h1>' > web/index.html
 
 $ docker build -t workstation-web:1.0 .
 ...
 #7 naming to docker.io/library/workstation-web:1.0
 
 $ docker images
-REPOSITORY        TAG           IMAGE ID       CREATED         SIZE
-workstation-web   1.0           df9a8c567528   8 seconds ago   62.2MB
-nginx             1.29-alpine   d5030d429039   8 days ago      62.2MB
+REPOSITORY        TAG           IMAGE ID       CREATED          SIZE
+workstation-web   1.0           032726192584   1 second ago     62.2MB
+<none>            <none>        a83ff33665b4   6 minutes ago    62.2MB
 
 $ docker run -d --name mission-web -p 8088:80 workstation-web:1.0
-18fa2fd00cdc8a5d922cdd5f25b95ddd4545e5bebe05acccb00d27e39a5e5bdb
+c41532c375912a4c75783ad29588883b49ca0be4faa405b7af8e808b7a2fed42
 
 $ docker ps
-CONTAINER ID   IMAGE                 COMMAND                  CREATED         STATUS                  PORTS                                     NAMES
-18fa2fd00cdc   workstation-web:1.0   "/docker-entrypoint.…"   7 seconds ago   Up 6 seconds            0.0.0.0:8088->80/tcp, [::]:8088->80/tcp   mission-web
+CONTAINER ID   IMAGE                 COMMAND                  CREATED                  STATUS                  PORTS                                     NAMES
+c41532c37591   workstation-web:1.0   "/docker-entrypoint.…"   Less than a second ago   Up Less than a second   0.0.0.0:8088->80/tcp, [::]:8088->80/tcp   mission-web
 
 $ docker logs mission-web | sed -n '1,8p'
 /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
@@ -489,8 +486,8 @@ $ docker logs mission-web | sed -n '1,8p'
 /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
 /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
 
-$ curl -s http://localhost:8088 | grep -o "<title>Hello Web Server</title>"
-<title>Hello Web Server</title>
+$ curl -s http://localhost:8088 | grep -o "<h1>Hello Web Server</h1>"
+<h1>Hello Web Server</h1>
 ```
 
 브라우저 접속 증거:
@@ -737,7 +734,7 @@ x64
 ### 기존 Dockerfile/이미지 기반 커스텀 이미지란?
 
 - 이미 검증된 베이스 이미지 위에 필요한 파일, 설정, 환경 변수를 추가해 "우리 팀에 맞는 실행 환경" 을 만드는 것이다.
-- 이번 실습에서는 `nginx:1.29-alpine` 위에 정적 HTML 을 복사해 `workstation-web:1.0` 을 만들었다.
+- 이번 실습에서는 `nginx:alpine` 위에 정적 HTML 을 복사해 `workstation-web:1.0` 을 만들었다.
 
 ### 이미지와 컨테이너의 차이: 빌드 / 실행 / 변경 관점
 
@@ -757,7 +754,7 @@ x64
 - `workstation-web:1.0` 은 빌드된 이미지다.
 - `mission-web` 은 그 이미지를 실행한 컨테이너다.
 - `bind-web` 에서 보인 바인드 마운트 변경이나, `mission-volume-1` 에서 만든 파일은 "실행 중 컨테이너/외부 스토리지" 의 변화다.
-- 정적 웹 페이지 자체를 기본값으로 영구 반영하고 싶다면 컨테이너 안을 수동 수정하는 것이 아니라 `app/index.html` 또는 `Dockerfile` 을 바꾸고 이미지를 다시 빌드해야 한다.
+- 정적 웹 페이지 자체를 기본값으로 영구 반영하고 싶다면 컨테이너 안을 수동 수정하는 것이 아니라 `web/index.html` 또는 `Dockerfile` 을 바꾸고 이미지를 다시 빌드해야 한다.
 
 쉽게 설명하면:
 
@@ -783,6 +780,8 @@ x64
 
 ```bash
 # 1) 커스텀 이미지 빌드
+mkdir -p web
+echo '<h1>Hello Web Server</h1>' > web/index.html
 docker build -t workstation-web:1.0 .
 
 # 2) 포트 매핑 실행
