@@ -923,6 +923,9 @@ $ docker compose down
 요약: Docker Compose를 사용하면 웹 서비스 실행 설정과 운영 명령을 한 파일로 문서화해 재현성과 관리성을 높일 수 있고, `up / ps / logs / down` 운영 흐름과 서비스 간 통신, 환경변수 변경까지 같은 방식으로 반복 검증할 수 있다.
 또한 `APP_MODE=dev`, `APP_MODE=prod` 값이 `printenv APP_MODE` 로 실제 컨테이너 내부에서 확인된 것은, `.env` 에 적은 설정값이 서비스 실행환경에 실제로 전달된다는 의미다.
 
+일반 `docker` 명령은 `docker run -p ... -v ... -e ...` 처럼 컨테이너별 실행 옵션을 한 번씩 직접 적어야 하지만, `docker compose` 는 이런 설정을 `docker-compose.yml` 에 모아 두고 `up / down` 으로 함께 관리할 수 있다는 차이가 있다.
+즉 단일 컨테이너를 빠르게 띄울 때는 일반 `docker` 가 단순하고, 여러 서비스와 포트, 볼륨, 환경변수를 반복해서 같은 방식으로 실행할 때는 `docker compose` 가 더 적합하다.
+
 ## 13. GitHub SSH 키 생성 및 SSH 원격 전환
 
 이 항목은 실제 로그보다 설정 순서를 간단히 안내하는 용도로 정리한다.
