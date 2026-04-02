@@ -60,20 +60,6 @@ git version 2.53.0
 6. `git --version`
 `git --version` 은 Git 이 설치되어 있는지와 버전을 확인하는 명령이다. 출력값 `git version 2.53.0` 은 이 과제에서 사용한 Git 버전이 `2.53.0` 임을 의미한다.
 
-- OS: macOS 15.7.4
-- Terminal Session: `non-interactive-cli` (`tty` unavailable, `TERM=dumb`)
-- Shell: `/bin/zsh`
-- Docker Engine: 28.5.2
-- Docker Context: `orbstack`
-- Git: 2.53.0
-- VSCode CLI: 1.112.0
-
-전체 로그:
-- [system-info.txt](docs/logs/system-info.txt)
-- [docker-basics.txt](docs/logs/docker-basics.txt)
-- [git-config.txt](docs/logs/git-config.txt)
-- [github-visibility.txt](docs/logs/github-visibility.txt)
-
 재현성 주의사항:
 
 - 이 저장소에서 사용한 실제 경로는 `/Users/10hour0574/dev-workstation-setup` 이다.
