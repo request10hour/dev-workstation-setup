@@ -1,0 +1,38 @@
+name: workstation-bonus
+
+services:
+  web:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    image: workstation-web:compose
+    environment:
+      APP_MODE: ${APP_MODE:-compose-bonus}
+    ports:
+      - "${BONUS_WEB_PORT:-8093}:80"
+    networks:
+      - bonus-net
+
+  probe:
+    image: busybox:1.36
+    depends_on:
+      - web
+    environment:
+      APP_MODE: ${APP_MODE:-compose-bonus}
+    command: >
+      sh -c "
+        until wget -qO- http://web:80 > /tmp/index.html; do
+          echo 'probe: waiting for web';
+          sleep 1;
+        done;
+        echo \"probe: APP_MODE=$$APP_MODE\";
+        echo 'probe: web reachable over compose network';
+        grep -o '<title>.*</title>' /tmp/index.html;
+        sleep 3600
+      "
+    networks:
+      - bonus-net
+
+networks:
+  bonus-net:
+    driver: bridge

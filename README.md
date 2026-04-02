@@ -16,16 +16,23 @@
 
 ```text
 .
+├── bonus/
+│   └── compose/
+│       ├── bonus.env
+│       ├── browser-frame.html
+│       └── compose.yaml
 ├── Dockerfile
 ├── .dockerignore
 ├── app/
 │   └── index.html
 ├── docs/
 │   ├── assets/
+│   │   ├── bonus-compose-8093.png
 │   │   ├── port-8088.png
 │   │   ├── port-8089-bind.png
 │   │   └── vscode-github-login.png
 │   └── logs/
+│       ├── bonus-compose.txt
 │       ├── docker-attach.txt
 │       ├── docker-basics.txt
 │       ├── orbstack-container-practice.txt
@@ -44,6 +51,7 @@
 구성 기준:
 
 - `app/`: 실제 서비스 소스만 모아 두는 영역이다. 컨테이너 이미지에 복사되는 대상이므로 실행 결과와 직접 연결되는 파일만 둔다.
+- `bonus/`: 선택 과제를 메인 요구사항과 분리한 영역이다. Compose, 환경변수, 캡처 재생성용 파일처럼 "추가 실습" 에만 필요한 파일을 따로 모았다.
 - `docs/logs/`: 평가 근거가 되는 명령 출력 로그를 보관한다. README에서 링크로 바로 접근할 수 있도록 증거 파일을 한곳에 모았다.
 - `docs/assets/`: 브라우저 접속 화면, VSCode 연동 화면처럼 이미지 증거를 보관한다. 로그와 스크린샷을 분리해 가독성을 높였다.
 - `practice/`: 터미널 조작과 권한 실습에 사용한 재현용 작업 공간이다. 실제 서비스 파일과 분리해 실습 과정이 서비스 결과물에 섞이지 않도록 했다.
@@ -552,6 +560,8 @@ x64
 - Git 상태 확인: [git-config.txt](docs/logs/git-config.txt)
 - GitHub 공개 저장소 확인: [github-visibility.txt](docs/logs/github-visibility.txt)
 - VSCode GitHub 로그인 증거: [vscode-github-login.png](docs/assets/vscode-github-login.png)
+- 보너스 Compose 로그: [bonus-compose.txt](docs/logs/bonus-compose.txt)
+- 보너스 Compose 접속 캡처: [bonus-compose-8093.png](docs/assets/bonus-compose-8093.png)
 
 ## 16. 트러블슈팅
 
@@ -666,3 +676,127 @@ docker exec mission-volume-2 bash -lc "cat /data/hello.txt"
 - GitHub Repository: `https://github.com/request10hour/dev-workstation-setup`
 - 기본 브랜치: `main`
 - 공개 여부: `public`
+
+## 20. 보너스 과제
+
+보너스 과제는 메인 평가 항목과 분리해서 진행할 수 있도록 `bonus/compose/` 아래에 별도 구성으로 정리했다.
+
+관련 파일:
+
+- Compose 파일: [compose.yaml](bonus/compose/compose.yaml)
+- 환경변수 파일: [bonus.env](bonus/compose/bonus.env)
+- 캡처 프레임 템플릿: [browser-frame.html](bonus/compose/browser-frame.html)
+- 실행 로그: [bonus-compose.txt](docs/logs/bonus-compose.txt)
+- 접속 캡처: [bonus-compose-8093.png](docs/assets/bonus-compose-8093.png)
+
+### 20-1. 보너스 체크리스트
+
+- [x] Docker Compose 단일 서비스 실행
+- [x] Docker Compose 멀티 컨테이너 실행
+- [x] `up`, `down`, `ps`, `logs` 운영 명령 확인
+- [x] 환경변수 파일로 호스트 포트/모드 분리
+- [ ] GitHub SSH 키 설정
+
+### 20-2. Docker Compose 기초: 단일 서비스
+
+`web` 서비스는 기존 과제의 `Dockerfile` 을 그대로 재사용해 이미지를 빌드하고, `BONUS_WEB_PORT` 환경변수로 호스트 포트를 정한다.
+
+```bash
+$ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env up -d --build
+$ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env ps
+```
+
+의미:
+
+- 개별 `docker run ...` 명령을 길게 반복하는 대신, 실행 설정을 `compose.yaml` 안에 문서처럼 고정할 수 있다.
+- 그래서 "어떤 이미지로, 어떤 포트로, 어떤 서비스 이름으로 실행했는지" 가 저장소에 남는다.
+
+### 20-3. Docker Compose 멀티 컨테이너
+
+이번 보너스 구성은 아래 두 서비스로 이루어져 있다.
+
+- `web`: 과제용 웹 페이지를 제공하는 NGINX 기반 서비스
+- `probe`: `busybox` 기반 보조 서비스. Compose 네트워크 안에서 `http://web:80` 으로 접속해 응답을 확인한다.
+
+컨테이너 간 통신 확인 로그:
+
+```bash
+$ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env logs probe
+probe-1  | probe: APP_MODE=compose-bonus
+probe-1  | probe: web reachable over compose network
+probe-1  | <title>AI/SW 개발 워크스테이션 구축</title>
+```
+
+해석:
+
+- `probe` 는 `localhost` 가 아니라 서비스 이름 `web` 으로 접근한다.
+- 이것이 Compose의 기본 네트워크와 서비스 디스커버리 개념이다.
+
+### 20-4. Compose 운영 명령어
+
+실행 로그:
+
+- [bonus-compose.txt](docs/logs/bonus-compose.txt)
+
+사용한 명령:
+
+```bash
+$ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env up -d --build
+$ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env ps
+$ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env logs probe
+$ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env down
+```
+
+### 20-5. 환경 변수 활용
+
+`bonus/compose/bonus.env` 에서 아래 값을 분리했다.
+
+```env
+BONUS_WEB_PORT=8093
+APP_MODE=compose-bonus
+```
+
+적용 방식:
+
+- `BONUS_WEB_PORT`: 호스트 포트를 `8093` 으로 지정한다.
+- `APP_MODE`: Compose 보조 서비스 로그에서 현재 모드를 확인하는 용도로 주입한다.
+
+즉, 코드와 실행 설정을 분리해 두었기 때문에 포트나 모드를 바꿀 때 `compose.yaml` 본문을 직접 고치지 않아도 된다.
+
+### 20-6. 보너스 웹페이지 캡처
+
+Compose로 띄운 웹페이지는 `http://localhost:8093` 에서 확인했고, 제출용 캡처는 아래 파일로 남겼다.
+
+![보너스 Compose 접속](docs/assets/bonus-compose-8093.png)
+
+재생성용 파일:
+
+- [browser-frame.html](bonus/compose/browser-frame.html)
+
+이 템플릿은 실제 웹페이지 캡처 위에 주소 표시줄을 합성하는 용도로 사용했다.
+
+### 20-7. GitHub SSH 키 설정
+
+이 항목은 계정 보안과 직접 연결되므로 자동으로 수행하지 않고, 아래 절차만 별도 정리한다.
+
+```bash
+# 1) SSH 키 생성
+ssh-keygen -t ed25519 -C "request10hour@gmail.com"
+
+# 2) 공개키 확인
+cat ~/.ssh/id_ed25519.pub
+
+# 3) GitHub > Settings > SSH and GPG keys 에 공개키 등록
+
+# 4) 원격 주소를 SSH 형식으로 변경
+git remote set-url origin git@github.com:request10hour/dev-workstation-setup.git
+
+# 5) 연결 확인
+ssh -T git@github.com
+git push origin main
+```
+
+주의사항:
+
+- 개인키(`~/.ssh/id_ed25519`) 는 절대 저장소에 올리면 안 된다.
+- README, 로그, 스크린샷에도 개인키나 인증 토큰이 보이지 않도록 해야 한다.

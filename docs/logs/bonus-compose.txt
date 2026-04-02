@@ -1,0 +1,95 @@
+$ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env config
+name: workstation-bonus
+services:
+  probe:
+    command:
+      - sh
+      - -c
+      - |2
+
+          until wget -qO- http://web:80 > /tmp/index.html; do
+            echo 'probe: waiting for web';
+            sleep 1;
+          done;
+          echo "probe: APP_MODE=$$APP_MODE";
+          echo 'probe: web reachable over compose network';
+          grep -o '<title>.*</title>' /tmp/index.html;
+          sleep 3600
+    depends_on:
+      web:
+        condition: service_started
+        required: true
+    environment:
+      APP_MODE: compose-bonus
+    image: busybox:1.36
+    networks:
+      bonus-net: null
+  web:
+    build:
+      context: /Users/10hour0574/dev-workstation-setup
+      dockerfile: Dockerfile
+    environment:
+      APP_MODE: compose-bonus
+    image: workstation-web:compose
+    networks:
+      bonus-net: null
+    ports:
+      - mode: ingress
+        target: 80
+        published: "8093"
+        protocol: tcp
+networks:
+  bonus-net:
+    name: workstation-bonus_bonus-net
+    driver: bridge
+
+$ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env up -d --build
+#1 [internal] load local bake definitions
+#1 reading from stdin 541B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 277B done
+#2 DONE 0.1s
+
+#3 [internal] load metadata for docker.io/library/nginx:1.29-alpine
+#3 DONE 0.0s
+
+#4 [internal] load .dockerignore
+#4 transferring context:
+#4 transferring context: 69B done
+#4 DONE 0.1s
+
+#5 [1/2] FROM docker.io/library/nginx:1.29-alpine
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 59B done
+#6 DONE 0.1s
+
+#7 [2/2] COPY app/ /usr/share/nginx/html/
+#7 CACHED
+
+#8 exporting to image
+#8 exporting layers done
+#8 writing image sha256:0486825c30e07f7724815fc0533efd1911e88008bfa24c1a305c22bc5418cb70 done
+#8 naming to docker.io/library/workstation-web:compose 0.0s done
+#8 DONE 0.1s
+
+#9 resolving provenance for metadata file
+#9 DONE 0.0s
+
+$ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env ps
+NAME                        IMAGE                     COMMAND                   SERVICE   CREATED        STATUS                  PORTS
+workstation-bonus-probe-1   busybox:1.36              "sh -c '\n  until wge…"   probe     1 second ago   Up Less than a second   
+workstation-bonus-web-1     workstation-web:compose   "/docker-entrypoint.…"    web       1 second ago   Up Less than a second   0.0.0.0:8093->80/tcp, [::]:8093->80/tcp
+
+$ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env logs probe
+probe-1  | probe: APP_MODE=compose-bonus
+probe-1  | probe: web reachable over compose network
+probe-1  | <title>AI/SW 개발 워크스테이션 구축</title>
+
+$ curl -s http://localhost:8093 | grep -o "<title>AI/SW 개발 워크스테이션 구축</title>"
+<title>AI/SW 개발 워크스테이션 구축</title>
+
+$ docker compose -f bonus/compose/compose.yaml --env-file bonus/compose/bonus.env down
