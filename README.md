@@ -708,6 +708,8 @@ c41532c37591   mission-web   0.00%     4.945MiB / 15.67GiB   0.03%     1.84kB / 
 
 ![운영 명령 검증 참고 화면](docs/assets/docker-operations-screen.png)
 
+![운영 명령 검증 추가 화면](docs/assets/docker-operations-screen-2.png)
+
 ## 10. Git / GitHub / VSCode 연동
 
 현재 자동 확인 결과:
