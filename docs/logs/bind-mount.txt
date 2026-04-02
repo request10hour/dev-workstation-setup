@@ -1,0 +1,32 @@
+$ mkdir -p bind-site
+
+$ echo '<h1>Bind Mount Version 1</h1>' > bind-site/index.html
+
+$ docker run -d --name bind-web -p 8081:80 -v "$(pwd)/bind-site:/usr/share/nginx/html" nginx:alpine
+1f6c5574cdf60048ce3a7448190555fa3fa2a5d810fcf229f8beb37c4f65fee1
+
+$ curl -s http://localhost:8081
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Bind Mount Version 1</title>
+</head>
+<body>
+  <h1>Bind Mount Version 1</h1>
+</body>
+</html>
+
+$ echo '<h1>Bind Mount Version 2</h1>' > bind-site/index.html
+
+$ curl -s http://localhost:8081
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Bind Mount Version 2</title>
+</head>
+<body>
+  <h1>Bind Mount Version 2</h1>
+</body>
+</html>

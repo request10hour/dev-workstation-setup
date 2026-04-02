@@ -553,31 +553,76 @@ $ curl -s http://localhost:8088 | grep -o "<title>Hello Web Server</title>"
 ## 7. 바인드 마운트 반영 검증
 
 실행 로그:
-- [docker-web.txt](docs/logs/docker-web.txt)
+- [bind-mount.txt](docs/logs/bind-mount.txt)
 
-검증 절차:
+명령줄 실행:
 
 ```bash
-$ cp -R app practice/bind-site
-$ docker run -d --name mission-bind -p 8089:80 \
-  -v "$PWD/practice/bind-site:/usr/share/nginx/html" nginx:1.29-alpine
+$ mkdir -p bind-site
 
-$ curl -s http://localhost:8089 | grep -F "Dockerfile + NGINX Demo"
-<span class="eyebrow">Dockerfile + NGINX Demo</span>
+$ echo '<h1>Bind Mount Version 1</h1>' > bind-site/index.html
 
-$ perl -0pi -e "s/Dockerfile \+ NGINX Demo/Bind Mount Updated/g" practice/bind-site/index.html
-$ grep -F "Bind Mount Updated" practice/bind-site/index.html
-<span class="eyebrow">Bind Mount Updated</span>
+$ docker run -d --name bind-web -p 8081:80 -v "$(pwd)/bind-site:/usr/share/nginx/html" nginx:alpine
+1f6c5574cdf60048ce3a7448190555fa3fa2a5d810fcf229f8beb37c4f65fee1
 
-$ curl -s http://localhost:8089 | grep -F "Bind Mount Updated"
-<span class="eyebrow">Bind Mount Updated</span>
+$ curl -s http://localhost:8081
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Bind Mount Version 1</title>
+</head>
+<body>
+  <h1>Bind Mount Version 1</h1>
+</body>
+</html>
+
+$ echo '<h1>Bind Mount Version 2</h1>' > bind-site/index.html
+
+$ curl -s http://localhost:8081
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Bind Mount Version 2</title>
+</head>
+<body>
+  <h1>Bind Mount Version 2</h1>
+</body>
+</html>
 ```
 
-해석:
+명령줄 설명:
+
+1. `mkdir -p bind-site`
+   바인드 마운트 실험용 디렉터리를 호스트에 만드는 명령이다. 이 폴더가 이후 컨테이너의 `/usr/share/nginx/html` 과 직접 연결된다.
+
+2. `echo '<h1>Bind Mount Version 1</h1>' > bind-site/index.html`
+   호스트 쪽 HTML 파일의 첫 번째 버전을 만든다. 이 파일은 이미지에 복사되는 것이 아니라, 컨테이너 실행 시 실시간으로 연결될 원본 파일이다.
+
+3. `docker run -d --name bind-web -p 8081:80 -v "$(pwd)/bind-site:/usr/share/nginx/html" nginx:alpine`
+   `nginx:alpine` 컨테이너를 실행하면서 호스트의 `bind-site` 디렉터리를 컨테이너 웹 루트에 바인드 마운트하는 명령이다. `-v` 옵션 때문에 컨테이너는 자기 내부 파일 대신 호스트 디렉터리 내용을 바로 읽게 된다.
+
+4. `curl -s http://localhost:8081`
+   수정 전 웹 응답을 확인하는 명령이다. 출력에 `Bind Mount Version 1` 이 보이므로, 호스트 파일의 첫 번째 버전이 컨테이너 웹 서버를 통해 정상 제공되고 있다는 뜻이다.
+
+5. `echo '<h1>Bind Mount Version 2</h1>' > bind-site/index.html`
+   이번에는 이미 실행 중인 컨테이너를 건드리지 않고, 호스트 파일만 두 번째 버전으로 덮어쓴다. 이 단계가 바인드 마운트 검증의 핵심이다.
+
+6. `curl -s http://localhost:8081`
+   수정 후 웹 응답을 다시 확인하는 명령이다. 출력이 바로 `Bind Mount Version 2` 로 바뀌었으므로, 이미지를 다시 빌드하거나 컨테이너를 다시 만들지 않아도 호스트 변경 사항이 즉시 반영된다는 것을 확인할 수 있다.
+
+의미 정리:
 
 - 바인드 마운트는 호스트 디렉터리와 컨테이너 경로를 직접 연결한다.
 - 그래서 호스트 파일을 수정하면 이미 실행 중인 컨테이너도 새 파일 내용을 즉시 읽는다.
 - 개발 중 "코드를 고치고 바로 반영 보기" 에 특히 유용하다.
+
+브라우저 접속 증거:
+
+![바인드 마운트 수정 전](docs/assets/bind-mount-8081-v1.png)
+
+![바인드 마운트 수정 후](docs/assets/bind-mount-8081-v2.png)
 
 ## 8. Docker 볼륨 영속성 검증
 
@@ -692,7 +737,8 @@ x64
 - 터미널 조작 로그: [terminal-basics.txt](docs/logs/terminal-basics.txt)
 - 권한 변경 로그: [permissions.txt](docs/logs/permissions.txt)
 - Docker 설치/기본 운영: [docker-basics.txt](docs/logs/docker-basics.txt)
-- 커스텀 이미지/포트/마운트: [docker-web.txt](docs/logs/docker-web.txt)
+- 커스텀 이미지/포트 매핑: [docker-web.txt](docs/logs/docker-web.txt)
+- 바인드 마운트: [bind-mount.txt](docs/logs/bind-mount.txt)
 - 볼륨 영속성: [docker-volume.txt](docs/logs/docker-volume.txt)
 - `attach` vs `exec`: [docker-attach.txt](docs/logs/docker-attach.txt)
 - OrbStack 추가 컨테이너 생성 실습: [orbstack-container-practice.txt](docs/logs/orbstack-container-practice.txt)
@@ -763,7 +809,7 @@ x64
 
 - `workstation-web:1.0` 은 빌드된 이미지다.
 - `mission-web` 은 그 이미지를 실행한 컨테이너다.
-- `mission-bind` 에서 보인 바인드 마운트 변경이나, `mission-volume-1` 에서 만든 파일은 "실행 중 컨테이너/외부 스토리지" 의 변화다.
+- `bind-web` 에서 보인 바인드 마운트 변경이나, `mission-volume-1` 에서 만든 파일은 "실행 중 컨테이너/외부 스토리지" 의 변화다.
 - 정적 웹 페이지 자체를 기본값으로 영구 반영하고 싶다면 컨테이너 안을 수동 수정하는 것이 아니라 `app/index.html` 또는 `Dockerfile` 을 바꾸고 이미지를 다시 빌드해야 한다.
 
 쉽게 설명하면:
@@ -797,9 +843,13 @@ docker run -d --name mission-web -p 8088:80 workstation-web:1.0
 curl http://localhost:8088
 
 # 3) 바인드 마운트 실행
-cp -R app practice/bind-site
-docker run -d --name mission-bind -p 8089:80 \
-  -v "$PWD/practice/bind-site:/usr/share/nginx/html" nginx:1.29-alpine
+mkdir -p bind-site
+echo '<h1>Bind Mount Version 1</h1>' > bind-site/index.html
+docker run -d --name bind-web -p 8081:80 \
+  -v "$PWD/bind-site:/usr/share/nginx/html" nginx:alpine
+curl http://localhost:8081
+echo '<h1>Bind Mount Version 2</h1>' > bind-site/index.html
+curl http://localhost:8081
 
 # 4) 볼륨 영속성 확인
 docker volume create mission-data
