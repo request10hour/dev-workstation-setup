@@ -1,22 +1,28 @@
-$ docker attach mission-attach
-root@ca7456c0e62b:/# echo inside-attach
-inside-attach
-root@ca7456c0e62b:/# pwd
-/
-root@ca7456c0e62b:/# exit
+$ docker run -dit --name ubuntu-lab ubuntu bash
+6f421b9572730b68818aeeaa8ec2b201fb9108489cc236f62953cdd96f99a5fd
+
+$ docker attach ubuntu-lab
+root@6f421b957273:/# ls
+bin   dev  home  lib64  mnt  proc  run   srv  tmp  var
+boot  etc  lib   media  opt  root  sbin  sys  usr
+root@6f421b957273:/# echo "attach mode" > /tmp/attach.txt
+root@6f421b957273:/# cat /tmp/attach.txt
+attach mode
+root@6f421b957273:/# Ctrl + P, Ctrl + Q
+
+$ docker exec -it ubuntu-lab bash
+root@6f421b957273:/# cat /tmp/attach.txt
+attach mode
+root@6f421b957273:/# echo "exec mode" > /tmp/exec.txt
+root@6f421b957273:/# cat /tmp/exec.txt
+exec mode
+root@6f421b957273:/# exit
 exit
 
-$ docker ps -a --filter name=mission-attach
-CONTAINER ID   IMAGE          COMMAND   CREATED          STATUS                     PORTS     NAMES
-ca7456c0e62b   ubuntu:24.04   "bash"    10 seconds ago   Exited (0) 3 seconds ago             mission-attach
+$ docker ps --filter name=ubuntu-lab
+CONTAINER ID   IMAGE    COMMAND   CREATED              STATUS              PORTS     NAMES
+6f421b957273   ubuntu   "bash"    Less than a minute   Up Less than a minute         ubuntu-lab
 
-$ docker start mission-attach
-mission-attach
-
-$ docker exec mission-attach bash -lc 'echo inside-exec && pwd'
-inside-exec
-/
-
-$ docker ps --filter name=mission-attach
-CONTAINER ID   IMAGE          COMMAND   CREATED          STATUS                  PORTS     NAMES
-ca7456c0e62b   ubuntu:24.04   "bash"    10 seconds ago   Up Less than a second             mission-attach
+$ docker ps -a --filter name=ubuntu-lab
+CONTAINER ID   IMAGE    COMMAND   CREATED              STATUS              PORTS     NAMES
+6f421b957273   ubuntu   "bash"    Less than a minute   Up Less than a minute         ubuntu-lab

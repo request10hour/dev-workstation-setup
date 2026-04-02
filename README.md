@@ -322,53 +322,71 @@ Docker 데몬이 실제로 동작 중인지 확인하는 명령이다. 이번 �
 ## 5. 컨테이너 실행 실습
 
 전체 로그:
-- [docker-basics.txt](docs/logs/docker-basics.txt)
 - [docker-attach.txt](docs/logs/docker-attach.txt)
+- [orbstack-container-practice.txt](docs/logs/orbstack-container-practice.txt)
 
-### 5-1. `ubuntu` 컨테이너 진입 대신 `exec` 로 내부 명령 실행
-
-```bash
-$ docker run -dit --name mission-ubuntu ubuntu:24.04 bash
-
-$ docker exec mission-ubuntu bash -lc "ls / | sed -n '1,8p'; echo hello-from-ubuntu"
-bin
-boot
-dev
-etc
-home
-lib
-lib64
-media
-hello-from-ubuntu
-```
-
-### 5-2. `attach` 와 `exec` 차이 관찰
+### 5-1. `ubuntu` 컨테이너로 `attach` / `exec` 차이를 직접 본다
 
 ```bash
-$ docker attach mission-attach
-root@ca7456c0e62b:/# echo inside-attach
-inside-attach
-root@ca7456c0e62b:/# exit
+$ docker run -dit --name ubuntu-lab ubuntu bash
+6f421b9572730b68818aeeaa8ec2b201fb9108489cc236f62953cdd96f99a5fd
+
+$ docker attach ubuntu-lab
+root@6f421b957273:/# ls
+bin   dev  home  lib64  mnt  proc  run   srv  tmp  var
+boot  etc  lib   media  opt  root  sbin  sys  usr
+root@6f421b957273:/# echo "attach mode" > /tmp/attach.txt
+root@6f421b957273:/# cat /tmp/attach.txt
+attach mode
+root@6f421b957273:/# Ctrl + P, Ctrl + Q
+
+$ docker exec -it ubuntu-lab bash
+root@6f421b957273:/# cat /tmp/attach.txt
+attach mode
+root@6f421b957273:/# echo "exec mode" > /tmp/exec.txt
+root@6f421b957273:/# cat /tmp/exec.txt
+exec mode
+root@6f421b957273:/# exit
 exit
 
-$ docker ps -a --filter name=mission-attach
-ca7456c0e62b   ubuntu:24.04   "bash"   Exited (0) ...
+$ docker ps --filter name=ubuntu-lab
+CONTAINER ID   IMAGE    COMMAND   CREATED              STATUS              PORTS     NAMES
+6f421b957273   ubuntu   "bash"    Less than a minute   Up Less than a minute         ubuntu-lab
 
-$ docker start mission-attach
-$ docker exec mission-attach bash -lc 'echo inside-exec && pwd'
-inside-exec
-/
-
-$ docker ps --filter name=mission-attach
-ca7456c0e62b   ubuntu:24.04   "bash"   Up ...
+$ docker ps -a --filter name=ubuntu-lab
+CONTAINER ID   IMAGE    COMMAND   CREATED              STATUS              PORTS     NAMES
+6f421b957273   ubuntu   "bash"    Less than a minute   Up Less than a minute         ubuntu-lab
 ```
 
-관찰 정리:
+설명:
 
-- `attach` 는 컨테이너의 메인 프로세스에 직접 붙는다. 메인 `bash` 에서 `exit` 하면 컨테이너도 종료된다.
-- `exec` 는 실행 중인 컨테이너 안에 새 프로세스를 추가로 띄운다. `exec` 로 실행한 셸을 종료해도 메인 프로세스가 살아 있으면 컨테이너는 계속 실행된다.
+1. `docker run -dit --name ubuntu-lab ubuntu bash`
+   `ubuntu` 이미지를 기반으로 `bash` 를 메인 프로세스로 실행하는 컨테이너를 만든다. `-d` 는 백그라운드 실행, `-i` 는 표준입력 유지, `-t` 는 터미널 할당을 의미한다. 출력으로 나온 긴 문자열은 새 컨테이너 ID 다.
+2. `docker attach ubuntu-lab`
+   이미 실행 중인 컨테이너의 메인 `bash` 프로세스에 직접 붙는다. 프롬프트가 `root@6f421b957273:/#` 로 바뀌는 것은 "호스트 셸" 이 아니라 "컨테이너 안의 셸" 로 들어갔다는 뜻이다.
+3. `ls`
+   컨테이너 루트 디렉터리의 기본 폴더 목록을 본다. `bin`, `etc`, `tmp`, `usr` 같은 표준 리눅스 디렉터리가 보이면 Ubuntu 컨테이너 내부 파일시스템을 보고 있다는 뜻이다.
+4. `echo "attach mode" > /tmp/attach.txt` 와 `cat /tmp/attach.txt`
+   `attach` 상태에서 파일을 직접 만들고, 곧바로 내용을 읽어 출력했다. `attach mode` 가 그대로 보이므로 컨테이너 안에서 파일 쓰기와 읽기가 정상 동작함을 확인할 수 있다.
+5. `Ctrl + P`, `Ctrl + Q`
+   `exit` 하지 않고 연결만 끊는 분리(detach) 키다. 이 방식으로 나오면 메인 `bash` 프로세스가 계속 살아 있으므로 컨테이너도 유지된다.
+6. `docker exec -it ubuntu-lab bash`
+   이미 실행 중인 같은 컨테이너 안에서 "새로운 셸 프로세스" 를 추가로 띄운다. 즉, 메인 프로세스에 직접 붙는 `attach` 와 달리, `exec` 는 별도 작업 창을 하나 더 여는 개념이다.
+7. `cat /tmp/attach.txt`
+   앞서 `attach` 단계에서 만든 파일이 그대로 보인다. 출력이 `attach mode` 인 것은 두 작업이 같은 컨테이너 파일시스템을 공유한다는 뜻이다.
+8. `echo "exec mode" > /tmp/exec.txt` 와 `cat /tmp/exec.txt`
+   이번에는 `exec` 셸 안에서 새 파일을 만들고 읽었다. `exec mode` 출력으로 새 프로세스에서도 컨테이너 내부 작업이 가능함을 확인했다.
+9. `exit`
+   `exec` 로 연 셸만 종료한다. 메인 `bash` 는 아직 살아 있으므로 컨테이너 전체는 종료되지 않는다.
+10. `docker ps`, `docker ps -a`
+    두 명령 모두 `ubuntu-lab` 이 `Up` 상태로 보였다. 현재 실행 중인 컨테이너이기 때문에 `ps` 와 `ps -a` 양쪽에 모두 나타난다.
 
-### 5-3. OrbStack 추가 실습: `컨테이너 0개` 상태에서 새 컨테이너 만들기
+한 줄 정리:
+
+- `attach`: 메인 프로세스에 직접 붙음
+- `exec`: 실행 중인 컨테이너 안에서 새 프로세스를 띄움
+
+### 5-2. OrbStack 추가 실습: `컨테이너 0개` 상태에서 새 컨테이너 만들기
 
 실행 로그:
 - [orbstack-container-practice.txt](docs/logs/orbstack-container-practice.txt)
@@ -657,10 +675,10 @@ x64
 
 ### 사례 2. `docker attach` 입력 파이프 방식이 실패함
 
-- 문제: `printf 'echo ...' | docker attach mission-attach` 방식으로 붙으려 했더니 `the input device is not a TTY` 메시지가 나왔다.
+- 문제: `printf 'echo ...' | docker attach ubuntu-lab` 방식으로 붙으려 했더니 `the input device is not a TTY` 메시지가 나왔다.
 - 원인 가설: `attach` 는 메인 프로세스의 터미널에 직접 붙기 때문에, 단순 파이프 대신 TTY 가 필요하다.
-- 확인: 실제 TTY 세션으로 `docker attach mission-attach` 를 실행한 뒤에는 입력과 종료가 정상 동작했다.
-- 해결: 인터랙티브 TTY 세션으로 `attach` 를 수행했고, 이후 `exit` 시 컨테이너가 종료되는 것을 확인했다.
+- 확인: 실제 TTY 세션으로 `docker attach ubuntu-lab` 를 실행한 뒤에는 입력과 종료가 정상 동작했다.
+- 해결: 인터랙티브 TTY 세션으로 `attach` 를 수행했고, `Ctrl + P`, `Ctrl + Q` 로 분리하면 컨테이너를 유지한 채 빠져나올 수 있음을 확인했다.
 
 ### 사례 3. 브라우저 접속 증거가 바탕화면만 찍힘
 
