@@ -734,3 +734,39 @@ VSCode 로그인 증거:
 Github 연동 증거:
 
 ![Git 연동 추가 화면](docs/assets/git-section-extra.png)
+
+## 11. 트러블슈팅
+
+### 11-1. `docker attach` 입력이 `the input device is not a TTY` 로 실패함
+
+- 문제:
+  `docker attach` 를 자동 입력이나 파이프 방식으로 붙이려 했을 때 `the input device is not a TTY` 오류가 발생했다. 즉, 컨테이너는 떠 있었지만 원하는 방식으로 셸에 진입하지 못했다.
+- 원인 가설:
+  `docker attach` 는 실행 중인 컨테이너의 메인 프로세스 터미널에 직접 연결하는 명령이기 때문에, 일반 문자열 파이프나 비대화형 입력이 아니라 실제 TTY 환경을 요구했을 가능성이 있었다.
+- 확인:
+  자동 입력 방식은 실패했지만, 실제 인터랙티브 터미널에서 `docker attach ubuntu-lab` 를 실행하자 프롬프트가 `root@6f421b957273:/#` 로 바뀌었다. 그 상태에서 `ls`, `echo "attach mode" > /tmp/attach.txt`, `cat /tmp/attach.txt` 가 정상 동작했고, 이후 `docker ps --filter name=ubuntu-lab` 결과에서도 컨테이너가 계속 `Up` 상태로 남아 있음을 확인했다.
+- 해결:
+  1. `docker run -dit --name ubuntu-lab ubuntu bash` 로 TTY가 연결된 Ubuntu 컨테이너를 먼저 실행했다.
+  2. 자동화된 파이프 입력 대신, 실제 터미널 세션에서 `docker attach ubuntu-lab` 를 실행해 메인 `bash` 프로세스에 직접 붙었다.
+  3. 컨테이너 안에서 필요한 확인 작업을 직접 수행했다.
+  4. 작업을 마친 뒤에는 `exit` 로 메인 셸을 끝내지 않고, `Ctrl + P` 다음 `Ctrl + Q` 를 순서대로 눌러 detach 했다. 이렇게 하면 메인 `bash` 프로세스가 계속 살아 있으므로 컨테이너도 종료되지 않는다.
+  5. 이후 추가 확인은 `docker exec -it ubuntu-lab bash` 로 들어가 수행했다. `exec` 는 실행 중인 컨테이너 안에 새 프로세스를 띄우는 방식이라, 단발성 확인 작업에는 더 안정적이었다.
+- 배운 점:
+  `attach` 는 메인 프로세스에 직접 붙는 명령이고, `exec` 는 실행 중인 컨테이너 안에 새 프로세스를 여는 명령이다. 그래서 메인 셸 자체를 관찰할 때는 `attach`, 추가 작업이나 재진입에는 `exec` 가 더 적합하다.
+
+### 11-2. `git push` 시 GitHub 인증이 없어 업로드가 실패함
+
+- 문제:
+  `git push -u origin main` 실행 시 `fatal: could not read Username for 'https://github.com': Device not configured` 오류가 발생했다. 저장소와 브랜치는 준비되어 있었지만 원격 업로드가 되지 않았다.
+- 원인 가설:
+  원격 저장소 주소는 이미 연결되어 있었지만, 현재 macOS 세션에서 HTTPS 원격 저장소에 사용할 GitHub 인증 정보가 없어서 push 단계에서 인증이 막혔을 가능성이 있었다.
+- 확인:
+  `git remote -v` 로 원격 주소가 `https://github.com/request10hour/dev-workstation-setup.git` 형식임을 확인했다. 또 `git config --list --show-origin` 에서는 `credential.helper=osxkeychain` 이 설정되어 있었지만, 실제 push 시 사용할 로그인 정보가 아직 저장되지 않았음을 알 수 있었다. 이후 VSCode에서 GitHub 로그인과 저장소 연동을 완료한 뒤 다시 push 했을 때는 정상적으로 업로드가 성공했다.
+- 해결:
+  1. `code .` 로 현재 저장소를 VSCode에서 열었다.
+  2. VSCode 안에서 GitHub 로그인 흐름을 따라 계정 인증을 완료했다.
+  3. Source Control 화면에서 현재 저장소와 GitHub 계정 연동 상태를 확인했다.
+  4. 터미널로 돌아와 `git push -u origin main` 을 다시 실행해 원격 저장소에 업로드했다.
+  5. 마지막으로 `curl -s https://api.github.com/repos/request10hour/dev-workstation-setup | rg '"private"|"visibility"|"default_branch"'` 명령으로 저장소가 `public` 이고 기본 브랜치가 `main` 인지 재확인했다.
+- 배운 점:
+  원격 저장소 주소가 연결되어 있다고 해서 인증까지 끝난 것은 아니다. 특히 HTTPS 방식은 GitHub 로그인 또는 토큰 저장이 완료되어야 push 가 가능하다. 이후 같은 문제가 반복되면 SSH 키를 등록해 `git@github.com:...` 형식으로 바꾸는 것도 좋은 대안이다.
