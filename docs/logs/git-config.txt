@@ -1,0 +1,26 @@
++zsh:4> cd /Users/10hour0574/dev-workstation-setup
++zsh:5> git config --global --get user.name
+request10hour
++zsh:6> git config --global --get user.email
+request10hour@gmail.com
++zsh:7> git config --global --get init.defaultBranch
+main
++zsh:8> git config --list --show-origin
+file:/usr/local/etc/gitconfig	credential.helper=osxkeychain
+file:/Users/10hour0574/.gitconfig	user.name=request10hour
+file:/Users/10hour0574/.gitconfig	user.email=request10hour@gmail.com
+file:/Users/10hour0574/.gitconfig	init.defaultbranch=main
+file:.git/config	core.repositoryformatversion=0
+file:.git/config	core.filemode=true
+file:.git/config	core.bare=false
+file:.git/config	core.logallrefupdates=true
+file:.git/config	core.ignorecase=true
+file:.git/config	core.precomposeunicode=true
+file:.git/config	remote.origin.url=https://github.com/request10hour/dev-workstation-setup.git
+file:.git/config	remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+file:.git/config	branch.main.remote=origin
+file:.git/config	branch.main.merge=refs/heads/main
++zsh:9> code --version
+1.112.0
+07ff9d6178ede9a1bd12ad3399074d726ebe6e43
+x64

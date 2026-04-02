@@ -1,0 +1,22 @@
+$ docker attach mission-attach
+root@ca7456c0e62b:/# echo inside-attach
+inside-attach
+root@ca7456c0e62b:/# pwd
+/
+root@ca7456c0e62b:/# exit
+exit
+
+$ docker ps -a --filter name=mission-attach
+CONTAINER ID   IMAGE          COMMAND   CREATED          STATUS                     PORTS     NAMES
+ca7456c0e62b   ubuntu:24.04   "bash"    10 seconds ago   Exited (0) 3 seconds ago             mission-attach
+
+$ docker start mission-attach
+mission-attach
+
+$ docker exec mission-attach bash -lc 'echo inside-exec && pwd'
+inside-exec
+/
+
+$ docker ps --filter name=mission-attach
+CONTAINER ID   IMAGE          COMMAND   CREATED          STATUS                  PORTS     NAMES
+ca7456c0e62b   ubuntu:24.04   "bash"    10 seconds ago   Up Less than a second             mission-attach

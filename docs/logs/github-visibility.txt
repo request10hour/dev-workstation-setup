@@ -1,0 +1,6 @@
+$ curl -s https://api.github.com/repos/request10hour/dev-workstation-setup | rg '"private"|"visibility"|"html_url"|"default_branch"'
+  "private": false,
+    "html_url": "https://github.com/request10hour",
+  "html_url": "https://github.com/request10hour/dev-workstation-setup",
+  "visibility": "public",
+  "default_branch": "main",

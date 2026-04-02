@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI/SW 개발 워크스테이션 구축</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4f1ea;
+        --card: rgba(255, 255, 255, 0.85);
+        --ink: #1f2933;
+        --accent: #005f73;
+        --accent-2: #ca6702;
+        --line: rgba(31, 41, 51, 0.14);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(238, 155, 0, 0.18), transparent 32%),
+          linear-gradient(135deg, #fdf7ed 0%, #dceef2 100%);
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      main {
+        width: min(760px, 100%);
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        padding: 32px;
+        box-shadow: 0 24px 60px rgba(31, 41, 51, 0.12);
+        backdrop-filter: blur(12px);
+      }
+
+      .eyebrow {
+        display: inline-block;
+        margin-bottom: 12px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(0, 95, 115, 0.1);
+        color: var(--accent);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+
+      h1 {
+        margin: 0 0 16px;
+        font-size: clamp(2rem, 4vw, 3.4rem);
+        line-height: 1.1;
+      }
+
+      p {
+        margin: 0 0 14px;
+        font-size: 1.05rem;
+        line-height: 1.7;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+        margin-top: 24px;
+      }
+
+      .card {
+        padding: 18px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.74);
+      }
+
+      .card strong {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--accent-2);
+      }
+
+      code {
+        font-family: "SFMono-Regular", "Menlo", monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <span class="eyebrow">Dockerfile + NGINX Demo</span>
+      <h1>AI/SW 개발 워크스테이션 구축</h1>
+      <p>
+        이 페이지는 <code>nginx:1.29-alpine</code> 이미지를 기반으로 만든 커스텀 이미지에서
+        제공됩니다.
+      </p>
+      <p>
+        포트 매핑, 바인드 마운트, Docker 볼륨 검증까지 같은 저장소 안에서 재현할 수 있도록
+        구성했습니다.
+      </p>
+      <div class="grid">
+        <section class="card">
+          <strong>포트 매핑</strong>
+          호스트 포트와 컨테이너 포트를 연결해 브라우저와 <code>curl</code>로 접근합니다.
+        </section>
+        <section class="card">
+          <strong>바인드 마운트</strong>
+          호스트의 파일 수정이 컨테이너 안 웹 루트에 즉시 반영되는지 확인합니다.
+        </section>
+        <section class="card">
+          <strong>볼륨 영속성</strong>
+          컨테이너를 삭제한 뒤에도 데이터가 유지되는지 검증합니다.
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,54 @@
++zsh:4> setopt null_glob
++zsh:5> cd /Users/10hour0574/dev-workstation-setup
++zsh:6> rm -rf practice/terminal/archive practice/terminal/note.txt
++zsh:7> pwd
+/Users/10hour0574/dev-workstation-setup
++zsh:8> ls -la
+total 24
+drwxr-xr-x   9 c10hour0574  c10hour0574  288 Apr  2 19:35 .
+drwxr-x---+ 21 c10hour0574  c10hour0574  672 Apr  2 19:37 ..
+drwxr-xr-x  10 c10hour0574  c10hour0574  320 Apr  2 19:33 .git
+-rw-r--r--   1 c10hour0574  c10hour0574   15 Apr  2 19:35 .gitignore
+-rw-r--r--   1 c10hour0574  c10hour0574  238 Apr  2 19:35 Dockerfile
+-rw-r--r--   1 c10hour0574  c10hour0574  184 Apr  2 19:35 README.md
+drwxr-xr-x   3 c10hour0574  c10hour0574   96 Apr  2 19:35 app
+drwxr-xr-x   4 c10hour0574  c10hour0574  128 Apr  2 19:34 docs
+drwxr-xr-x   5 c10hour0574  c10hour0574  160 Apr  2 19:37 practice
++zsh:9> mkdir -p practice/terminal/workspace-a
++zsh:10> cd practice/terminal
++zsh:11> pwd
+/Users/10hour0574/dev-workstation-setup/practice/terminal
++zsh:12> ls -la
+total 0
+drwxr-xr-x  3 c10hour0574  c10hour0574   96 Apr  2 19:39 .
+drwxr-xr-x  5 c10hour0574  c10hour0574  160 Apr  2 19:37 ..
+drwxr-xr-x  2 c10hour0574  c10hour0574   64 Apr  2 19:39 workspace-a
++zsh:13> printf 'mission-log\n'
++zsh:14> touch empty.txt
++zsh:15> cat note.txt
+mission-log
++zsh:16> cp note.txt note-copy.txt
++zsh:17> mv note-copy.txt renamed-note.txt
++zsh:18> mkdir archive
++zsh:19> mv renamed-note.txt archive/renamed-note.txt
++zsh:20> ls -la
+total 8
+drwxr-xr-x  6 c10hour0574  c10hour0574  192 Apr  2 19:39 .
+drwxr-xr-x  5 c10hour0574  c10hour0574  160 Apr  2 19:37 ..
+drwxr-xr-x  3 c10hour0574  c10hour0574   96 Apr  2 19:39 archive
+-rw-r--r--  1 c10hour0574  c10hour0574    0 Apr  2 19:39 empty.txt
+-rw-r--r--  1 c10hour0574  c10hour0574   12 Apr  2 19:39 note.txt
+drwxr-xr-x  2 c10hour0574  c10hour0574   64 Apr  2 19:39 workspace-a
++zsh:21> ls -la archive
+total 8
+drwxr-xr-x  3 c10hour0574  c10hour0574   96 Apr  2 19:39 .
+drwxr-xr-x  6 c10hour0574  c10hour0574  192 Apr  2 19:39 ..
+-rw-r--r--  1 c10hour0574  c10hour0574   12 Apr  2 19:39 renamed-note.txt
++zsh:22> rm empty.txt
++zsh:23> rm -rf workspace-a
++zsh:24> ls -la
+total 8
+drwxr-xr-x  4 c10hour0574  c10hour0574  128 Apr  2 19:39 .
+drwxr-xr-x  5 c10hour0574  c10hour0574  160 Apr  2 19:37 ..
+drwxr-xr-x  3 c10hour0574  c10hour0574   96 Apr  2 19:39 archive
+-rw-r--r--  1 c10hour0574  c10hour0574   12 Apr  2 19:39 note.txt
