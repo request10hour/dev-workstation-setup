@@ -5,9 +5,16 @@ ProductVersion:		15.7.4
 BuildVersion:		24G517
 +zsh:6> uname -a
 Darwin c4r6s1.codyssey.kr 24.6.0 Darwin Kernel Version 24.6.0: Mon Jan 19 22:00:10 PST 2026; root:xnu-11417.140.69.708.3~1/RELEASE_X86_64 x86_64
-+zsh:7> echo /bin/zsh
++zsh:7> echo 'TERMINAL_SESSION=non-interactive-cli'
+TERMINAL_SESSION=non-interactive-cli
++zsh:8> tty
+not a tty
++zsh:8> true
++zsh:9> echo /bin/zsh
 /bin/zsh
-+zsh:8> docker --version
++zsh:10> echo dumb
+dumb
++zsh:11> docker --version
 Docker version 28.5.2, build ecc6942
-+zsh:9> git --version
++zsh:12> git --version
 git version 2.53.0

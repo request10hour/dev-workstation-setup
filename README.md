@@ -43,6 +43,7 @@
 ## 3. 실행 환경
 
 - OS: macOS 15.7.4
+- Terminal Session: `non-interactive-cli` (`tty` unavailable, `TERM=dumb`)
 - Shell: `/bin/zsh`
 - Docker Engine: 28.5.2
 - Docker Context: `orbstack`
@@ -63,8 +64,17 @@ ProductName:        macOS
 ProductVersion:     15.7.4
 BuildVersion:       24G517
 
+$ echo "TERMINAL_SESSION=non-interactive-cli"
+TERMINAL_SESSION=non-interactive-cli
+
+$ tty
+not a tty
+
 $ echo $SHELL
 /bin/zsh
+
+$ echo $TERM
+dumb
 
 $ docker --version
 Docker version 28.5.2, build ecc6942
@@ -72,6 +82,12 @@ Docker version 28.5.2, build ecc6942
 $ git --version
 git version 2.53.0
 ```
+
+재현성 주의사항:
+
+- 이 저장소에서 사용한 실제 경로는 `/Users/10hour0574/dev-workstation-setup` 이다.
+- 다른 PC에서는 같은 저장소를 clone 한 뒤 자신의 작업 경로로 바꿔 읽으면 된다.
+- 경로를 문서화할 때는 절대 경로 예시와 함께 `$PWD`, 상대 경로를 병기하면 재현성이 좋아진다.
 
 ## 4. 수행 체크리스트
 
@@ -483,12 +499,19 @@ x64
 - 확인: 실제 TTY 세션으로 `docker attach mission-attach` 를 실행한 뒤에는 입력과 종료가 정상 동작했다.
 - 해결: 인터랙티브 TTY 세션으로 `attach` 를 수행했고, 이후 `exit` 시 컨테이너가 종료되는 것을 확인했다.
 
-### 사례 3. 브라우저 증거 이미지는 너무 커서 저장소에 부담이 됨
+### 사례 3. 브라우저 접속 증거가 바탕화면만 찍힘
 
-- 문제: 전체 화면 캡처 원본이 각각 약 25MB 수준으로 생성되었다.
+- 문제: 처음 생성한 포트 매핑 스크린샷 두 장이 브라우저가 아니라 macOS 바탕화면만 담고 있었다.
+- 원인 가설: GUI 브라우저 창이 다른 Space 또는 포커스 상태에 있어 `screencapture` 가 현재 화면만 캡처했을 가능성이 있었다.
+- 확인: 저장된 PNG 를 직접 열어 보니 주소창과 웹 페이지가 없고, 배경화면만 보였다.
+- 해결: `localhost` 페이지를 실제로 응답시키는 상태를 유지한 뒤, headless Chrome 으로 주소창이 포함된 브라우저 프레임 이미지를 다시 생성해 `docs/assets/port-8088.png`, `docs/assets/port-8089-bind.png` 를 교체했다.
+
+### 사례 4. 브라우저 증거 이미지 파일 크기가 불필요하게 큼
+
+- 문제: 초기 전체 화면 캡처 원본은 각각 약 25MB 수준으로 생성되어 저장소에 올리기 부담스러웠다.
 - 원인 가설: 5K 해상도 전체 화면 PNG 가 그대로 저장되었기 때문이다.
 - 확인: `ls -lh docs/assets` 로 파일 크기를 확인했다.
-- 해결: `sips -Z 1600 ...` 으로 리사이즈해 제출용 크기(약 2.9MB)로 줄였다.
+- 해결: 제출용 이미지는 주소창과 응답 내용을 유지하면서 더 작은 해상도 이미지로 다시 생성해 저장소 크기를 줄였다.
 
 ## 17. 핵심 개념 정리
 
